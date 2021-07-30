@@ -1,8 +1,10 @@
-package com.uiza.sdkbroadcast.enums;
+package com.uiza.sdkbroadcast.enums
 
-import com.pedro.encoder.utils.gl.TranslateTo;
+import com.pedro.encoder.utils.gl.TranslateTo
 
-public enum Translate {
+enum class Translate(
+    val translateTo: TranslateTo
+) {
     CENTER(TranslateTo.CENTER),
     LEFT(TranslateTo.LEFT),
     RIGHT(TranslateTo.RIGHT),
@@ -12,15 +14,4 @@ public enum Translate {
     TOP_RIGHT(TranslateTo.TOP_RIGHT),
     BOTTOM_LEFT(TranslateTo.BOTTOM_LEFT),
     BOTTOM_RIGHT(TranslateTo.BOTTOM_RIGHT);
-
-    private final TranslateTo translateTo;
-
-    private Translate(TranslateTo translateTo) {
-        this.translateTo = translateTo;
-    }
-
-    public TranslateTo getTranslateTo() {
-        return translateTo;
-    }
-
 }
