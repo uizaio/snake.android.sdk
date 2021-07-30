@@ -1,1 +1,1 @@
-include ':uzbroadcast', ':samplebroadcast'
+include ':snakebroadcast', ':samplebroadcast'

@@ -38,7 +38,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(':uzbroadcast')
+    implementation project(':snakebroadcast')
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.preference:preference:1.1.1'
