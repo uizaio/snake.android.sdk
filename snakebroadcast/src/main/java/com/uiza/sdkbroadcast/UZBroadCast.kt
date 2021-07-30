@@ -1,31 +1,18 @@
-package com.uiza.sdkbroadcast;
+package com.uiza.sdkbroadcast
 
-import androidx.annotation.DrawableRes;
+import androidx.annotation.DrawableRes
+import org.greenrobot.eventbus.EventBus
 
-import org.greenrobot.eventbus.EventBus;
+class UZBroadCast {
+    companion object {
+        @get:DrawableRes
+        @DrawableRes
+        var iconNotify = 0
 
-public class UZBroadCast {
-    @DrawableRes
-    static int iconNotify;
-
-
-    private UZBroadCast() {
-    }
-
-    public static void init() {
-        init(R.drawable.ic_start_live);
-    }
-
-    /**
-     * @param iconNotify
-     */
-    public static void init(@DrawableRes int iconNotify) {
-        UZBroadCast.iconNotify = iconNotify;
-        EventBus.builder().installDefaultEventBus();
-    }
-
-    @DrawableRes
-    public static int getIconNotify() {
-        return iconNotify;
+        @JvmOverloads
+        fun init(@DrawableRes iconNotify: Int = R.drawable.ic_start_live) {
+            UZBroadCast.iconNotify = iconNotify
+            EventBus.builder().installDefaultEventBus()
+        }
     }
 }

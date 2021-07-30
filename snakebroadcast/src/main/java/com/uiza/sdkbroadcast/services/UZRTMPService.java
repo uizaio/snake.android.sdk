@@ -42,7 +42,7 @@ public class UZRTMPService extends Service {
 
     private void showNotification(String content) {
         Notification notification = new NotificationCompat.Builder(getApplicationContext(), channelId)
-                .setSmallIcon(UZBroadCast.getIconNotify())
+                .setSmallIcon(UZBroadCast.Companion.getIconNotify())
                 .setContentTitle(getString(R.string.app_name))
                 .setContentText(content)
                 .build();

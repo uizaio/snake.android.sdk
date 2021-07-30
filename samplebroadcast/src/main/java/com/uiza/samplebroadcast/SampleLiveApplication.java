@@ -12,6 +12,6 @@ public class SampleLiveApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
 
-        UZBroadCast.init(R.mipmap.ic_launcher);
+        UZBroadCast.Companion.init(R.mipmap.ic_launcher);
     }
 }

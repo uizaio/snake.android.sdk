@@ -44,7 +44,7 @@ public class UZDisplayService extends Service {
 
     private void showNotification(String content) {
         Notification notification = new NotificationCompat.Builder(getBaseContext(), channelId)
-                .setSmallIcon(UZBroadCast.getIconNotify())
+                .setSmallIcon(UZBroadCast.Companion.getIconNotify())
                 .setContentTitle(getBaseContext().getString(R.string.app_name))
                 .setContentText(content)
                 .build();
