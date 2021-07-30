@@ -27,4 +27,5 @@
         <item name="android:src">@drawable/ic_stop_white_24</item>
         <item name="android:contentDescription">@string/live_controls_stop_live_description</item>
     </style>
+
 </resources>

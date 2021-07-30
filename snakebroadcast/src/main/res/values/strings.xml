@@ -7,7 +7,6 @@
     <string name="stop_button">Stop stream</string>
     <string name="switch_camera_button">Switch camera</string>
     <string name="hint_rtmp">rtmp://yourendpoint</string>
-
     <string name="need_permission">Need Permissions</string>
     <string name="this_app_needs_permission">This app needs permission to use this feature.</string>
     <string name="this_app_needs_permission_grant_it">This app needs permission to use this feature. You can grant them in app settings.</string>

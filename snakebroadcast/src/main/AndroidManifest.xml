@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.uiza.sdkbroadcast">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -7,10 +8,15 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
+        tools:ignore="ScopedStorage" />
+
     <!-- RUN Service -->
     <!--needed by background Rtp service to keep service alive-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <!--some devices need it-->
     <uses-feature
         android:name="android.hardware.camera"
@@ -27,21 +33,19 @@
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
-
     <uses-feature
         android:glEsVersion="0x00030000"
         android:required="true" />
-
     <uses-feature
         android:name="android.hardware.camera.front"
         android:required="false" />
-
     <uses-feature
         android:name="android.hardware.screen.portrait"
         android:required="false" />
 
     <application
         android:allowBackup="true"
+        android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
         <service android:name="com.uiza.sdkbroadcast.services.UZRTMPService" />
         <service
