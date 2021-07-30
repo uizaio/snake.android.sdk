@@ -1,24 +1,9 @@
-package com.uiza.sdkbroadcast.events;
+package com.uiza.sdkbroadcast.events
 
-public class UZEvent {
-    private String message;
-    private EventSignal signal;
+class UZEvent(
+    val signal: EventSignal,
+    val message: String?
+) {
 
-    public UZEvent(String message) {
-        this(EventSignal.UPDATE, message);
-    }
-
-    public UZEvent(EventSignal signal, String message) {
-        this.signal = signal;
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public EventSignal getSignal() {
-        return signal;
-    }
+    constructor(message: String?) : this(EventSignal.UPDATE, message)
 }
-

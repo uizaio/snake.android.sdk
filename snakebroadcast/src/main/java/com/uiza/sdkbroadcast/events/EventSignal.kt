@@ -1,5 +1,5 @@
-package com.uiza.sdkbroadcast.events;
+package com.uiza.sdkbroadcast.events
 
-public enum EventSignal {
+enum class EventSignal {
     UPDATE, STOP
 }
