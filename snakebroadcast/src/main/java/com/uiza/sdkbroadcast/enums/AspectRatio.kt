@@ -1,7 +1,6 @@
-package com.uiza.sdkbroadcast.enums;
+package com.uiza.sdkbroadcast.enums
 
-public enum AspectRatio {
-
+enum class AspectRatio {
     /**
      * 19:9 standard aspect ratio.
      * Ex: note 10
@@ -24,19 +23,12 @@ public enum AspectRatio {
      */
     RATIO_4_3;
 
-
-    public double getAspectRatio() {
-        switch (this) {
-            case RATIO_4_3:
-                return 4.0 / 3;
-            case RATIO_19_9:
-                return 19.0 / 9;
-            case RATIO_18_9:
-                return 18.0 / 9;
-            case RATIO_16_9:
-            default:
-                return 16.0 / 9;
+    val aspectRatio: Double
+        get() = when (this) {
+            RATIO_4_3 -> 4.0 / 3
+            RATIO_19_9 -> 19.0 / 9
+            RATIO_18_9 -> 18.0 / 9
+            RATIO_16_9 -> 16.0 / 9
+            else -> 16.0 / 9
         }
-
-    }
 }
