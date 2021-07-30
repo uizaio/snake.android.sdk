@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="UZBroadCastView">
+        <attr name="useCamera2" format="boolean" />
+        <attr name="runInBackground" format="boolean" />
+        <attr name="startCamera" format="enum">
+            <enum name="BACK" value="0" />
+            <enum name="FRONT" value="1" />
+        </attr>
+        <attr name="AAEnabled" format="boolean" />
+        <attr name="keepAspectRatio" format="boolean" />
+        <attr name="isFlipHorizontal" format="boolean" />
+        <attr name="isFlipVertical" format="boolean" />
+    </declare-styleable>
+</resources>
