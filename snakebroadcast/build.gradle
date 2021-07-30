@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.uizaio'
 
@@ -21,10 +22,15 @@ android {
 }
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.core:core-ktx:1.6.0"
     implementation 'org.jetbrains:annotations:16.0.1'
+    implementation 'org.greenrobot:eventbus:3.2.0'
     //https://github.com/pedroSG94/rtmp-rtsp-stream-client-java
     implementation 'com.github.pedroSG94.rtmp-rtsp-stream-client-java:rtplibrary:1.8.4'
-    implementation 'org.greenrobot:eventbus:3.2.0'
     //runtime permission https://github.com/Karumi/Dexter
     implementation 'com.karumi:dexter:6.1.2'
+}
+repositories {
+    mavenCentral()
 }
