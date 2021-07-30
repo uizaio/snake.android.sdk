@@ -1,7 +1,6 @@
-package com.uiza.sdkbroadcast.enums;
+package com.uiza.sdkbroadcast.enums
 
-public enum OrientationMode {
-
+enum class OrientationMode(val value: Int) {
     /**
      * Default value
      * The output video always follows the orientation of the captured video,
@@ -10,6 +9,7 @@ public enum OrientationMode {
      * If the captured video is in portrait mode, the output video is in portrait mode.
      */
     ADAPTIVE(0),
+
     /**
      * The output video is always in landscape mode.
      * If the captured video is in portrait mode,
@@ -17,6 +17,7 @@ public enum OrientationMode {
      * Applies to situations where the receiving end cannot process the rotational information
      */
     FIXED_LANDSCAPE(1),
+
     /**
      * The output video is always in portrait mode.
      * If the captured video is in landscape mode,
@@ -25,20 +26,12 @@ public enum OrientationMode {
      */
     FIXED_PORTRAIT(2);
 
-    private final int value;
-
-    OrientationMode(int value) {
-        this.value = value;
-    }
-
-    public static OrientationMode fromValue(int id) {
-        for (OrientationMode o : values()) {
-            if (o.value == id) return o;
+    companion object {
+        fun fromValue(id: Int): OrientationMode {
+            for (o in values()) {
+                if (o.value == id) return o
+            }
+            throw IllegalArgumentException()
         }
-        throw new IllegalArgumentException();
-    }
-
-    public int getValue() {
-        return value;
     }
 }
