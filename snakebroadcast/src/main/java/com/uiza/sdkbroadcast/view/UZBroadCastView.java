@@ -78,13 +78,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * @required: <uses-permission android:name="android.permission.CAMERA"/> and
  * <uses-permission android:name="android.permission.RECORD_AUDIO"/>
  */
 public class UZBroadCastView extends RelativeLayout implements View.OnTouchListener {
+    private final String tag = getClass().getSimpleName();
 
     private static final long SECOND = 1000;
     private static final long MINUTE = 60 * SECOND;
@@ -470,7 +469,8 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
                 if (prepareBroadCast() && !TextUtils.isEmpty(mainBroadCastUrl))
                     startBroadCast(mainBroadCastUrl);
             } catch (Exception ignored) {
-                Timber.e("Can not resume broadcasting right now !");
+//                Cannot resume broadcasting right now!
+                ignored.printStackTrace();
             }
         }, SECOND);
     }
@@ -608,6 +608,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
 
     /**
      * Take a photo
+     *
      * @param callback
      */
     public void takePhoto(@NonNull UZTakePhotoCallback callback) {
@@ -837,7 +838,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
             gifRender.setPosition(position.getTranslateTo());
             spriteGestureController.setBaseObjectFilterRender(gifRender);
         } catch (IOException e) {
-            Timber.e(e);
+            e.printStackTrace();
         }
     }
 

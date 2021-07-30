@@ -4,6 +4,7 @@ import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.NoiseSuppressor;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -11,9 +12,9 @@ import com.uiza.sdkbroadcast.util.ValidValues;
 
 import java.util.Locale;
 
-import timber.log.Timber;
-
 public class AudioAttributes implements Parcelable {
+    private final static String tag = AudioAttributes.class.getSimpleName();
+
     public static final Creator<AudioAttributes> CREATOR = new Creator<AudioAttributes>() {
         @Override
         public AudioAttributes createFromParcel(Parcel in) {
@@ -72,7 +73,7 @@ public class AudioAttributes implements Parcelable {
     }
 
     public static AudioAttributes create(int bitRate, int sampleRate, boolean stereo) {
-        Timber.e("echo = %b", AcousticEchoCanceler.isAvailable());
+        Log.e(tag, "echo = %b" + AcousticEchoCanceler.isAvailable());
         return new AudioAttributes(bitRate, sampleRate, stereo, AcousticEchoCanceler.isAvailable(), NoiseSuppressor.isAvailable());
     }
 

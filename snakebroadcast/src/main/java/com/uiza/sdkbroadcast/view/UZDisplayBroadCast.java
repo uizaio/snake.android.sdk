@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
@@ -41,9 +42,8 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.io.InputStream;
 
-import timber.log.Timber;
-
 public class UZDisplayBroadCast {
+    private final String tag = getClass().getSimpleName();
     private final int REQUEST_CODE_STREAM = 2021; //random num
     private final int REQUEST_CODE_RECORD = 2023; //random num
     private RtmpDisplay rtmpDisplay;
@@ -56,6 +56,7 @@ public class UZDisplayBroadCast {
     private VideoAttributes videoAttributes;
     private AudioAttributes audioAttributes;
     final ConnectCheckerRtmp connectCheckerRtmp;
+
     public UZDisplayBroadCast(Activity activity) {
         this.activity = activity;
         // IMPLEMENT from ConnectCheckerRtmp
@@ -118,7 +119,7 @@ public class UZDisplayBroadCast {
         checkLivePermission();
     }
 
-    public void reCreateDisplay(){
+    public void reCreateDisplay() {
         rtmpDisplay = new RtmpDisplay(activity.getApplicationContext(), true, connectCheckerRtmp);
         rtmpDisplay.setReTries(8);
     }
@@ -178,6 +179,7 @@ public class UZDisplayBroadCast {
     public void setUZBroadCastListener(UZBroadCastListener uzBroadCastListener) {
         this.uzBroadCastListener = uzBroadCastListener;
     }
+
     /**
      * Clear Watermark
      */
@@ -200,6 +202,7 @@ public class UZDisplayBroadCast {
         textRender.setDefaultScale(rtmpDisplay.getStreamWidth(), rtmpDisplay.getStreamHeight());
         textRender.setPosition(position.getTranslateTo());
     }
+
     /**
      * Watermark with image
      *
@@ -210,6 +213,7 @@ public class UZDisplayBroadCast {
     public void setImageWatermark(@DrawableRes int imageRes, PointF scale, Translate position) {
         setImageWatermark(BitmapFactory.decodeResource(activity.getResources(), imageRes), scale, position);
     }
+
     /**
      * Watermark with image
      *
@@ -218,7 +222,7 @@ public class UZDisplayBroadCast {
      * @param position of image
      */
     public void setImageWatermark(Bitmap bitmap, PointF scale, Translate position) {
-        if(rtmpDisplay == null) return;
+        if (rtmpDisplay == null) return;
         ImageObjectFilterRender imageRender = new ImageObjectFilterRender();
         rtmpDisplay.getGlInterface().setFilter(imageRender);
         imageRender.setImage(bitmap);
@@ -253,7 +257,7 @@ public class UZDisplayBroadCast {
             gifRender.setScale(scale.x, scale.y);
             gifRender.setPosition(position.getTranslateTo());
         } catch (IOException e) {
-            Timber.e(e);
+            e.printStackTrace();
         }
     }
 
@@ -279,7 +283,7 @@ public class UZDisplayBroadCast {
      */
     public boolean prepareBroadCast(boolean isLandscape) {
         if (videoAttributes == null) {
-            Timber.e("Please set videoAttributes");
+            Log.e(tag, "Please set videoAttributes");
             return false;
         }
         return prepareBroadCast(audioAttributes, videoAttributes, isLandscape);
@@ -338,10 +342,11 @@ public class UZDisplayBroadCast {
 
     public void stopBroadCast(boolean closeActivity) {
         rtmpDisplay.stopStream();
-        if(closeActivity) {
+        if (closeActivity) {
             new Handler().postDelayed(() -> activity.finish(), 100);
         }
     }
+
     /**
      * call this method in onActivityResult
      *

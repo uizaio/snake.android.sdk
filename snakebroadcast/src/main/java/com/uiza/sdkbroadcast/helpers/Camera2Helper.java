@@ -2,6 +2,7 @@ package com.uiza.sdkbroadcast.helpers;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import android.util.Size;
 import android.view.MotionEvent;
 
@@ -28,19 +29,18 @@ import net.ossrs.rtmp.ConnectCheckerRtmp;
 import java.io.IOException;
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * Wrapper to stream with camera2 api and microphone. Support stream with OpenGlView(Custom SurfaceView that use OpenGl) and Context(background mode).
  * All views use Surface to buffer encoding mode for H264.
- *
+ * <p>
  * API requirements:
  * API 21+.
- *
+ * <p>
  * Created by namnd on 10/01/20.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Helper implements ICameraHelper {
+    private final String tag = getClass().getSimpleName();
 
     private RtmpCamera2 rtmpCamera2;
 
@@ -181,7 +181,7 @@ public class Camera2Helper implements ICameraHelper {
     @Override
     public boolean prepareBroadCast(boolean isLandscape) {
         if (videoAttributes == null) {
-            Timber.e("Please set videoAttributes");
+            Log.e(tag, "Please set videoAttributes");
             return false;
         }
         return prepareBroadCast(audioAttributes, videoAttributes, isLandscape);

@@ -2,6 +2,7 @@ package com.uiza.sdkbroadcast.helpers;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -28,20 +29,18 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * Wrapper to stream with camera1 api and microphone. Support stream with OpenGlView(Custom SurfaceView that use OpenGl).
  * OpenGlView use Surface to buffer mode(This mode is generally
  * better because skip buffer processing).
- *
+ * <p>
  * API requirements:
  * OpenGlView: API 18+.
- *
+ * <p>
  * Created by namnd on 10/01/20.
  */
 public class Camera1Helper implements ICameraHelper {
-
+    private final String tag = getClass().getSimpleName();
     private RtmpCamera1 rtmpCamera1;
 
     private UZCameraChangeListener uzCameraChangeListener;
@@ -171,7 +170,7 @@ public class Camera1Helper implements ICameraHelper {
     @Override
     public boolean prepareBroadCast(boolean isLandscape) {
         if (videoAttributes == null) {
-            Timber.e("Please set videoAttributes");
+            Log.e(tag, "Please set videoAttributes");
             return false;
         }
         return prepareBroadCast(audioAttributes, videoAttributes, isLandscape);

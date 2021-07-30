@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -24,10 +25,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import timber.log.Timber;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class UZDisplayService extends Service {
+    private final String tag = getClass().getSimpleName();
     public static final String EXTRA_BROAD_CAST_URL = "uz_extra_broad_cast_url";
     public static final String EXTRA_VIDEO_ATTRIBUTES = "uz_extra_video_attributes";
     public static final String EXTRA_AUDIO_ATTRIBUTES = "uz_extra_audio_attributes";
@@ -99,7 +100,7 @@ public class UZDisplayService extends Service {
 
     @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
     public void handleEvent(UZEvent event) {
-        Timber.e("#handleEvent: called for %s", event.getMessage());
+        Log.e(tag, "#handleEvent: called for " + event.getMessage());
         if (event.getSignal() == EventSignal.STOP)
             stopSelf();
         else
