@@ -1,29 +1,20 @@
-package com.uiza.sdkbroadcast.interfaces;
+package com.uiza.sdkbroadcast.interfaces
 
-public interface UZBroadCastListener {
+interface UZBroadCastListener {
+    fun onInit(success: Boolean)
+    fun onConnectionSuccess()
+    fun onConnectionFailed(reason: String?)
+    fun onRetryConnection(delay: Long)
+    fun onDisconnect()
+    fun onAuthError()
+    fun onAuthSuccess()
+    fun surfaceCreated()
+    fun surfaceChanged(
+        format: Int,
+        width: Int,
+        height: Int,
+    )
 
-    void onInit(boolean success);
-
-    void onConnectionSuccess();
-
-    void onConnectionFailed(String reason);
-
-    void onRetryConnection(long delay);
-
-    void onDisconnect();
-
-    void onAuthError();
-
-    void onAuthSuccess();
-
-    void surfaceCreated();
-
-    void surfaceChanged(
-            int format, int width, int
-            height
-    );
-
-    void surfaceDestroyed();
-
-    void onBackgroundTooLong();
+    fun surfaceDestroyed()
+    fun onBackgroundTooLong()
 }
