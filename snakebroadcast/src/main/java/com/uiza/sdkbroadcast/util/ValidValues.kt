@@ -1,27 +1,30 @@
-package com.uiza.sdkbroadcast.util;
+package com.uiza.sdkbroadcast.util
 
-import android.app.ActivityManager;
-import android.app.Service;
-import android.content.Context;
+import android.app.ActivityManager
+import android.app.Service
+import android.content.Context
 
-public class ValidValues {
-    private ValidValues() {
+object ValidValues {
+    @JvmStatic
+    fun check(value: Int, min: Int, max: Int) {
+        require(!(value > max || value < min)) {
+            String.format(
+                "You must set value in [%d, %d]",
+                min,
+                max
+            )
+        }
+        //        else pass
     }
 
-    public static void check(int value, int min, int max) {
-        if (value > max || value < min)
-            throw new IllegalArgumentException(String.format("You must set value in [%d, %d]", min, max));
-//        else pass
-    }
-
-    public static <T extends Service> boolean isMyServiceRunning(Context context, Class<T> tClass) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        if (manager != null)
-            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if (tClass.getName().equals(service.service.getClassName())) {
-                    return true;
-                }
+    @JvmStatic
+    fun <T : Service?> isMyServiceRunning(context: Context, tClass: Class<T>): Boolean {
+        val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (tClass.name == service.service.className) {
+                return true
             }
-        return false;
+        }
+        return false
     }
 }

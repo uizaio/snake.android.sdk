@@ -1,41 +1,34 @@
-package com.uiza.sdkbroadcast.util;
+package com.uiza.sdkbroadcast.util
 
-import android.os.Build;
+import android.os.Build
+import java.util.*
+import java.util.stream.Collectors
 
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class ListUtils {
-
-    public static <T> List<T> filter(@NonNull List<T> list, Pre<T, Boolean> pre) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return list.stream().filter(pre::get).collect(Collectors.toList());
+object ListUtils {
+    fun <T> filter(list: List<T>, pre: Pre<T, Boolean>): List<T> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            list.stream().filter { item: T -> pre[item] }.collect(Collectors.toList())
         } else {
-            List<T> col = new ArrayList<>();
-            for (int i = 0; i < list.size(); i++)
-                if (pre.get(list.get(i)))
-                    col.add(list.get(i));
-            return col;
+            val col: MutableList<T> = ArrayList()
+            for (i in list.indices) if (pre[list[i]]) col.add(list[i])
+            col
         }
     }
 
-    public static <T, R> List<R> map(List<T> list, Pre<T, R> pre) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            return list.stream().map(pre::get).collect(Collectors.toList());
+    @JvmStatic
+    fun <T, R> map(list: List<T>, pre: Pre<T, R>): List<R> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            list.stream().map { item: T -> pre[item] }.collect(Collectors.toList())
         } else {
-            List<R> cols = new ArrayList<>();
-            for (int i = 0; i < list.size(); i++) {
-                cols.add(pre.get(list.get(i)));
+            val cols: MutableList<R> = ArrayList()
+            for (i in list.indices) {
+                cols.add(pre[list[i]])
             }
-            return cols;
+            cols
         }
     }
 
-    public interface Pre<T, R> {
-        R get(T item);
+    interface Pre<T, R> {
+        operator fun get(item: T): R
     }
-
 }
