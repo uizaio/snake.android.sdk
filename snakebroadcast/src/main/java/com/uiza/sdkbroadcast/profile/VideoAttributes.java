@@ -1,7 +1,5 @@
 package com.uiza.sdkbroadcast.profile;
 
-//
-
 import android.content.res.Resources;
 import android.media.MediaCodecInfo;
 import android.os.Parcel;
@@ -31,7 +29,7 @@ public class VideoAttributes implements Parcelable {
         }
     };
 
-    private int MAX_BITRATE = 6000000; // 6000 kps
+    private final int MAX_BITRATE = 6000000; // 6000 kps
 
     /**
      * The video size for the encoding process.

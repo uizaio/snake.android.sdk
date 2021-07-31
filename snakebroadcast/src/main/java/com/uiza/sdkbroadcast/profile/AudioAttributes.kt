@@ -1,103 +1,98 @@
-package com.uiza.sdkbroadcast.profile;
+package com.uiza.sdkbroadcast.profile
 
-import android.media.audiofx.AcousticEchoCanceler;
-import android.media.audiofx.NoiseSuppressor;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
+import android.media.audiofx.AcousticEchoCanceler
+import android.media.audiofx.NoiseSuppressor
+import android.os.Parcel
+import android.os.Parcelable
+import android.os.Parcelable.Creator
+import android.util.Log
+import com.uiza.sdkbroadcast.util.ValidValues.check
+import java.util.*
 
-import androidx.annotation.NonNull;
-
-import com.uiza.sdkbroadcast.util.ValidValues;
-
-import java.util.Locale;
-
-public class AudioAttributes implements Parcelable {
-    private final static String tag = AudioAttributes.class.getSimpleName();
-
-    public static final Creator<AudioAttributes> CREATOR = new Creator<AudioAttributes>() {
-        @Override
-        public AudioAttributes createFromParcel(Parcel in) {
-            return new AudioAttributes(in);
-        }
-
-        @Override
-        public AudioAttributes[] newArray(int size) {
-            return new AudioAttributes[size];
-        }
-    };
-    /**
-     * AAC in kb.
-     * The bitrate value for the encoding process.
-     * default value 64*1024 (64kps)
-     */
-    private int bitRate = 64 * 1024;
-    /**
-     * The sampleRate value for the audio encoding process.
-     * default value 44100 (44.1 KHz)
-     */
-    private int sampleRate = 44100; // Hz
-    /**
-     * true stereo, false mono.
-     * default value true (stereo)
-     */
-    private boolean stereo = true;
-    /**
-     * true enable echo canceler, false disable.
-     */
-    private boolean echoCanceler;
-    /**
-     * true enable noise suppressor, false  disable.
-     */
-    private boolean noiseSuppressor;
-
-    private AudioAttributes() {
-    }
-
-    private AudioAttributes(Parcel in) {
-        bitRate = in.readInt();
-        sampleRate = in.readInt();
-        stereo = in.readInt() == 1;
-        echoCanceler = in.readInt() == 1;
-        noiseSuppressor = in.readInt() == 1;
-    }
-
-    private AudioAttributes(int bitRate, int sampleRate, boolean stereo, boolean echoCanceler, boolean noiseSuppressor) {
-        ValidValues.check(bitRate, 1, 256 * 1024); // max 256 Kbps
-        ValidValues.check(sampleRate, 1, 48000); // max 48 KHz
-        this.bitRate = bitRate;
-        this.sampleRate = sampleRate;
-        this.stereo = stereo;
-        this.echoCanceler = echoCanceler;
-        this.noiseSuppressor = noiseSuppressor;
-    }
-
-    public static AudioAttributes create(int bitRate, int sampleRate, boolean stereo) {
-        Log.e(tag, "echo = %b" + AcousticEchoCanceler.isAvailable());
-        return new AudioAttributes(bitRate, sampleRate, stereo, AcousticEchoCanceler.isAvailable(), NoiseSuppressor.isAvailable());
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(bitRate);
-        dest.writeInt(sampleRate);
-        dest.writeInt(stereo ? 1 : 0);
-        dest.writeInt(echoCanceler ? 1 : 0);
-        dest.writeInt(noiseSuppressor ? 1 : 0);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
+class AudioAttributes : Parcelable {
     /**
      * Returns the bitrate value for the encoding process.
      *
      * @return The bitrate value for the encoding process.
      */
-    public int getBitRate() {
-        return bitRate;
+    /**
+     * AAC in kb.
+     * The bitrate value for the encoding process.
+     * default value 64*1024 (64kps)
+     */
+    var bitRate = 64 * 1024
+        private set
+    /**
+     * Returns the samplingRate value for the encoding process.
+     *
+     * @return the sampleRate value for the encoding process.
+     */
+    /**
+     * The sampleRate value for the audio encoding process.
+     * default value 44100 (44.1 KHz)
+     */
+    var sampleRate = 44100 // Hz
+        private set
+    /**
+     * Returns the channels value (1=mono, 2=stereo, 4=quad) for the encoding process.
+     *
+     * @return The channels value (1=mono, 2=stereo, 4=quad) for the encoding process.
+     */
+    /**
+     * true stereo, false mono.
+     * default value true (stereo)
+     */
+    var isStereo = true
+        private set
+
+    /**
+     * true enable echo canceler, false disable.
+     */
+    var isEchoCanceler = false
+        private set
+
+    /**
+     * true enable noise suppressor, false  disable.
+     */
+    var isNoiseSuppressor = false
+        private set
+
+    private constructor() {}
+
+    private constructor(`in`: Parcel) {
+        bitRate = `in`.readInt()
+        sampleRate = `in`.readInt()
+        isStereo = `in`.readInt() == 1
+        isEchoCanceler = `in`.readInt() == 1
+        isNoiseSuppressor = `in`.readInt() == 1
+    }
+
+    private constructor(
+        bitRate: Int,
+        sampleRate: Int,
+        stereo: Boolean,
+        echoCanceler: Boolean,
+        noiseSuppressor: Boolean
+    ) {
+        check(value = bitRate, min = 1, max = 256 * 1024) // max 256 Kbps
+        check(value = sampleRate, min = 1, max = 48000) // max 48 KHz
+        this.bitRate = bitRate
+        this.sampleRate = sampleRate
+        isStereo = stereo
+        isEchoCanceler = echoCanceler
+        isNoiseSuppressor = noiseSuppressor
+    }
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(bitRate)
+        dest.writeInt(sampleRate)
+        dest.writeInt(if (isStereo) 1 else 0)
+        dest.writeInt(if (isEchoCanceler) 1 else 0)
+        dest.writeInt(if (isNoiseSuppressor) 1 else 0)
+    }
+
+    override fun describeContents(): Int {
+        return 0
     }
 
     /**
@@ -106,18 +101,9 @@ public class AudioAttributes implements Parcelable {
      * @param bitRate The bitrate value for the encoding process.
      * @return this instance
      */
-    public AudioAttributes setBitRate(Integer bitRate) {
-        this.bitRate = bitRate;
-        return this;
-    }
-
-    /**
-     * Returns the samplingRate value for the encoding process.
-     *
-     * @return the sampleRate value for the encoding process.
-     */
-    public int getSampleRate() {
-        return sampleRate;
+    fun setBitRate(bitRate: Int): AudioAttributes {
+        this.bitRate = bitRate
+        return this
     }
 
     /**
@@ -126,69 +112,77 @@ public class AudioAttributes implements Parcelable {
      * @param sampleRate The samplingRate value for the encoding process.
      * @return this instance
      */
-    public AudioAttributes setSampleRate(int sampleRate) {
-        this.sampleRate = sampleRate;
-        return this;
-    }
-
-    /**
-     * Returns the channels value (1=mono, 2=stereo, 4=quad) for the encoding process.
-     *
-     * @return The channels value (1=mono, 2=stereo, 4=quad) for the encoding process.
-     */
-    public boolean isStereo() {
-        return stereo;
+    fun setSampleRate(sampleRate: Int): AudioAttributes {
+        this.sampleRate = sampleRate
+        return this
     }
 
     /**
      * Sets the value (false=mono, true=stereo) for the encoding process.
      *
      * @param stereo The value (false=mono, true=stereo) for the encoding
-     *               process.
+     * process.
      * @return this instance
      */
-    public AudioAttributes setStereo(boolean stereo) {
-        this.stereo = stereo;
-        return this;
-    }
-
-    public boolean isEchoCanceler() {
-        return echoCanceler;
+    fun setStereo(stereo: Boolean): AudioAttributes {
+        isStereo = stereo
+        return this
     }
 
     /**
-     * see {@link AcousticEchoCanceler#isAvailable()}
+     * see [AcousticEchoCanceler.isAvailable]
      *
      * @param echoCanceler boolean value
      * @return this instance
      */
-    public AudioAttributes setEchoCanceler(boolean echoCanceler) {
-        this.echoCanceler = echoCanceler && AcousticEchoCanceler.isAvailable();
-        return this;
-    }
-
-    public boolean isNoiseSuppressor() {
-        return noiseSuppressor;
+    fun setEchoCanceler(echoCanceler: Boolean): AudioAttributes {
+        isEchoCanceler = echoCanceler && AcousticEchoCanceler.isAvailable()
+        return this
     }
     ///
-
     /**
-     * see {@link NoiseSuppressor#isAvailable()}
+     * see [NoiseSuppressor.isAvailable]
      *
      * @param noiseSuppressor boolean value
      * @return this instance
      */
-    public AudioAttributes setNoiseSuppressor(boolean noiseSuppressor) {
-        this.noiseSuppressor = noiseSuppressor && NoiseSuppressor.isAvailable();
-        return this;
+    fun setNoiseSuppressor(noiseSuppressor: Boolean): AudioAttributes {
+        isNoiseSuppressor = noiseSuppressor && NoiseSuppressor.isAvailable()
+        return this
     }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return String.format(Locale.getDefault(),
-                "AudioAttributes:(bitRate: %d, sampleRate: %d, stereo: %b, echoCanceler: %b, noiseSuppressor: %b)",
-                bitRate, sampleRate, stereo, echoCanceler, noiseSuppressor
-        );
+    override fun toString(): String {
+        return String.format(
+            Locale.getDefault(),
+            "AudioAttributes:(bitRate: %d, sampleRate: %d, stereo: %b, echoCanceler: %b, noiseSuppressor: %b)",
+            bitRate, sampleRate, isStereo, isEchoCanceler, isNoiseSuppressor
+        )
+    }
+
+    companion object {
+        private val tag = AudioAttributes::class.java.simpleName
+
+        @JvmField
+        val CREATOR: Creator<AudioAttributes?> = object : Creator<AudioAttributes?> {
+            override fun createFromParcel(`in`: Parcel): AudioAttributes {
+                return AudioAttributes(`in`)
+            }
+
+            override fun newArray(size: Int): Array<AudioAttributes?> {
+                return arrayOfNulls(size)
+            }
+        }
+
+        @JvmStatic
+        fun create(bitRate: Int, sampleRate: Int, stereo: Boolean): AudioAttributes {
+            Log.e(tag, "echo = %b" + AcousticEchoCanceler.isAvailable())
+            return AudioAttributes(
+                bitRate = bitRate,
+                sampleRate = sampleRate,
+                stereo = stereo,
+                echoCanceler = AcousticEchoCanceler.isAvailable(),
+                noiseSuppressor = NoiseSuppressor.isAvailable()
+            )
+        }
     }
 }

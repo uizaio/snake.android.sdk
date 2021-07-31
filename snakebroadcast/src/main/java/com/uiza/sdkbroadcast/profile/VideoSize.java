@@ -7,6 +7,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Size;
 
+//31/07/2021 loitp try to port kotlin but failed
 public class VideoSize implements Parcelable {
     public static final Creator<VideoSize> CREATOR = new Creator<VideoSize>() {
         @Override
@@ -19,8 +20,8 @@ public class VideoSize implements Parcelable {
             return new VideoSize[size];
         }
     };
-    private int mWidth;
-    private int mHeight;
+    private final int mWidth;
+    private final int mHeight;
 
 
     private VideoSize(int w, int h) {
