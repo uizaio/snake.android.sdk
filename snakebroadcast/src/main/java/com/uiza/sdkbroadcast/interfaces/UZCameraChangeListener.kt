@@ -1,5 +1,5 @@
-package com.uiza.sdkbroadcast.interfaces;
+package com.uiza.sdkbroadcast.interfaces
 
-public interface UZCameraChangeListener {
-    void onCameraChange(boolean isFrontCamera);
+interface UZCameraChangeListener {
+    fun onCameraChange(isFrontCamera: Boolean)
 }

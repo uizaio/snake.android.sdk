@@ -1,8 +1,3 @@
-package com.uiza.sdkbroadcast.interfaces;
+package com.uiza.sdkbroadcast.interfaces
 
-
-public class UZCameraOpenException extends RuntimeException {
-    public UZCameraOpenException(String message) {
-        super(message);
-    }
-}
+class UZCameraOpenException(message: String?) : RuntimeException(message)

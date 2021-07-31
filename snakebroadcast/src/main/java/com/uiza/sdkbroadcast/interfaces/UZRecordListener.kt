@@ -1,9 +1,7 @@
-package com.uiza.sdkbroadcast.interfaces;
+package com.uiza.sdkbroadcast.interfaces
 
+import com.uiza.sdkbroadcast.enums.RecordStatus
 
-import com.uiza.sdkbroadcast.enums.RecordStatus;
-
-public interface UZRecordListener {
-
-    void onStatusChange(RecordStatus status);
+interface UZRecordListener {
+    fun onStatusChange(status: RecordStatus?)
 }
