@@ -7,15 +7,19 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
 import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.os.HandlerCompat
+import androidx.core.os.HandlerCompat.postDelayed
 import com.uiza.sdkbroadcast.R
 import com.uiza.sdkbroadcast.UZBroadCast.Companion.iconNotify
 import com.uiza.sdkbroadcast.events.EventSignal
 import com.uiza.sdkbroadcast.events.UZEvent
+import com.uiza.sdkbroadcast.view.UZBroadCastView
 import com.uiza.sdkbroadcast.view.UZDisplayBroadCast
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -95,12 +99,16 @@ class UZDisplayService : Service() {
         val mBroadCastUrl = intent.getStringExtra(EXTRA_BROAD_CAST_URL)
         if (!TextUtils.isEmpty(mBroadCastUrl)) {
             //TODO loitp check this sometimes error
-            displayBroadCast?.rtmpDisplay?.let { rtmp ->
-                if (rtmp.isStreaming) {
-                    showNotification(getString(R.string.you_are_already_broadcasting))
-                } else {
-                    rtmp.startStream(mBroadCastUrl)
+            try {
+                displayBroadCast?.rtmpDisplay?.let { rtmp ->
+                    if (rtmp.isStreaming) {
+                        showNotification(getString(R.string.you_are_already_broadcasting))
+                    } else {
+                        rtmp.startStream(mBroadCastUrl)
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         return START_STICKY
