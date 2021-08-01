@@ -45,10 +45,9 @@ import java.io.InputStream;
 public class UZDisplayBroadCast {
     private final String tag = getClass().getSimpleName();
     private final int REQUEST_CODE_STREAM = 2021; //random num
-    private final int REQUEST_CODE_RECORD = 2023; //random num
     private RtmpDisplay rtmpDisplay;
     private String mBroadCastUrl;
-    private Activity activity;
+    private final Activity activity;
     private UZBroadCastListener uzBroadCastListener;
     private BitrateAdapter bitrateAdapter;
     private boolean adaptiveBitrate = true;
@@ -343,7 +342,7 @@ public class UZDisplayBroadCast {
     public void stopBroadCast(boolean closeActivity) {
         rtmpDisplay.stopStream();
         if (closeActivity) {
-            new Handler().postDelayed(() -> activity.finish(), 100);
+            new Handler().postDelayed(activity::finish, 100);
         }
     }
 
@@ -355,6 +354,8 @@ public class UZDisplayBroadCast {
      * @param data        Intent
      */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //random num
+        int REQUEST_CODE_RECORD = 2023;
         if ((requestCode == REQUEST_CODE_STREAM || requestCode == REQUEST_CODE_RECORD) && resultCode == Activity.RESULT_OK) {
             rtmpDisplay.setIntentResult(resultCode, data);
             Intent intent = new Intent(activity, UZDisplayService.class);
