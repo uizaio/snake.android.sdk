@@ -90,7 +90,7 @@ class UZRTMPService : Service() {
                         cam.startBroadCast(mBroadCastUrl)
                     }
                 } else {
-                    showNotification("You are already broadcasting.")
+                    showNotification(getString(R.string.you_are_already_broadcasting))
                 }
             }
         }
@@ -100,7 +100,7 @@ class UZRTMPService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         EventBus.getDefault().unregister(this)
-        showNotification("Stream stopped")
+        showNotification(getString(R.string.stream_stopped))
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)

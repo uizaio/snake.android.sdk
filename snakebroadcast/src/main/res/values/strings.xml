@@ -64,4 +64,6 @@
     <string name="live_controls_switch_camera_description">Switch Camera</string>
     <string name="live_controls_start_live_description">Start Live</string>
     <string name="live_controls_stop_live_description">Stop Live</string>
+    <string name="you_are_already_broadcasting">You are already broadcasting.</string>
+    <string name="stream_stopped">Stream stopped</string>
 </resources>
