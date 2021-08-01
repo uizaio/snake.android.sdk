@@ -83,14 +83,14 @@ import java.util.List;
  * <uses-permission android:name="android.permission.RECORD_AUDIO"/>
  */
 public class UZBroadCastView extends RelativeLayout implements View.OnTouchListener {
-    private final String tag = getClass().getSimpleName();
+    private final String logTag = getClass().getSimpleName();
 
     private static final long SECOND = 1000;
     private static final long MINUTE = 60 * SECOND;
     private static final int WATERMARK_POSITION = 1;
     private static final int FILTER_POSITION = 0;
-    OpenGlView openGlView;
-    AspectRatio aspectRatio = AspectRatio.RATIO_16_9;
+    OpenGlView mOpenGlView;
+    AspectRatio mAspectRatio = AspectRatio.RATIO_16_9;
     private String mainBroadCastUrl;
     private ICameraHelper cameraHelper;
 
@@ -104,7 +104,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
     private CountDownTimer backgroundTimer;
     private boolean isBroadcastingBeforeGoingBackground;
     private boolean isFromBackgroundTooLong;
-    private boolean AAEnabled = false;
+    private boolean isAAEnabled = false;
     private boolean keepAspectRatio = false;
     private boolean isFlipHorizontal = false, isFlipVertical = false;
     private boolean adaptiveBitrate = true;
@@ -122,10 +122,10 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            int mHeight = Math.min((int) (width * aspectRatio.getAspectRatio()), height);
+            int mHeight = Math.min((int) (width * mAspectRatio.getAspectRatio()), height);
             cameraHelper.startPreview(startCamera, width, mHeight);
             if (runInBackground) {
-                cameraHelper.replaceView(openGlView);
+                cameraHelper.replaceView(mOpenGlView);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && useCamera2)
                 postDelayed(UZBroadCastView.this::switchCamera, 100); // fix Note10 with camera2
@@ -283,7 +283,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
                 startCamera = CameraHelper.Facing.values()[a.getInt(R.styleable.UZBroadCastView_startCamera, 1)];
                 // for openGL
                 keepAspectRatio = a.getBoolean(R.styleable.UZBroadCastView_keepAspectRatio, true);
-                AAEnabled = a.getBoolean(R.styleable.UZBroadCastView_AAEnabled, false);
+                isAAEnabled = a.getBoolean(R.styleable.UZBroadCastView_AAEnabled, false);
 //                ManagerRender.numFilters = a.getInt(R.styleable.UZBroadCastView_numFilters, 1);
                 isFlipHorizontal = a.getBoolean(R.styleable.UZBroadCastView_isFlipHorizontal, false);
                 isFlipVertical = a.getBoolean(R.styleable.UZBroadCastView_isFlipVertical, false);
@@ -297,7 +297,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
             startCamera = CameraHelper.Facing.FRONT;
             // for OpenGL
             keepAspectRatio = true;
-            AAEnabled = false;
+            isAAEnabled = false;
             isFlipHorizontal = false;
             isFlipVertical = false;
             ManagerRender.numFilters = 2;
@@ -311,21 +311,21 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
     @SuppressLint("ClickableViewAccessibility")
     private void onCreateView() {
         inflate(getContext(), R.layout.layout_uiza_glview, this);
-        openGlView = findViewById(R.id.cameraView);
+        mOpenGlView = findViewById(R.id.cameraView);
         if (useCamera2)
-            cameraHelper = new Camera2Helper(openGlView, connectCheckerRtmp);
+            cameraHelper = new Camera2Helper(mOpenGlView, connectCheckerRtmp);
         else
-            cameraHelper = new Camera1Helper(openGlView, connectCheckerRtmp);
+            cameraHelper = new Camera1Helper(mOpenGlView, connectCheckerRtmp);
 
         if (runInBackground) {
             UZRTMPService.init(cameraHelper);
         }
-        openGlView.init();
-        openGlView.getHolder().addCallback(surfaceCallback);
-        openGlView.setCameraFlip(isFlipHorizontal, isFlipVertical);
-        openGlView.setKeepAspectRatio(keepAspectRatio);
-        openGlView.enableAA(AAEnabled);
-        openGlView.setOnTouchListener(this);
+        mOpenGlView.init();
+        mOpenGlView.getHolder().addCallback(surfaceCallback);
+        mOpenGlView.setCameraFlip(isFlipHorizontal, isFlipVertical);
+        mOpenGlView.setKeepAspectRatio(keepAspectRatio);
+        mOpenGlView.enableAA(isAAEnabled);
+        mOpenGlView.setOnTouchListener(this);
         tvLiveStatus = findViewById(R.id.tvLiveStatus);
         progressBar = findViewById(R.id.pb);
         progressBar.getIndeterminateDrawable().setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY));
@@ -335,17 +335,17 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
     /**
      * Set AspectRatio
      *
-     * @param aspectRatio One of {@link AspectRatio#RATIO_19_9},
-     *                    {@link AspectRatio#RATIO_18_9},
-     *                    {@link AspectRatio#RATIO_16_9} or {@link AspectRatio#RATIO_4_3}
+     * @param mAspectRatio One of {@link AspectRatio#RATIO_19_9},
+     *                     {@link AspectRatio#RATIO_18_9},
+     *                     {@link AspectRatio#RATIO_16_9} or {@link AspectRatio#RATIO_4_3}
      */
-    public void setAspectRatio(AspectRatio aspectRatio) {
-        this.aspectRatio = aspectRatio;
-        if (openGlView != null) {
+    public void setmAspectRatio(AspectRatio mAspectRatio) {
+        this.mAspectRatio = mAspectRatio;
+        if (mOpenGlView != null) {
             int screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-            openGlView.getLayoutParams().width = screenWidth;
-            openGlView.getLayoutParams().height = (int) (screenWidth * aspectRatio.getAspectRatio());
-            openGlView.requestLayout();
+            mOpenGlView.getLayoutParams().width = screenWidth;
+            mOpenGlView.getLayoutParams().height = (int) (screenWidth * mAspectRatio.getAspectRatio());
+            mOpenGlView.requestLayout();
         }
     }
 
