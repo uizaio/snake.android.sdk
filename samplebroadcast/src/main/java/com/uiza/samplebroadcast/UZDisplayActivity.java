@@ -117,8 +117,8 @@ public class UZDisplayActivity extends AppCompatActivity implements View.OnClick
                             Toast.LENGTH_SHORT).show();
                 }
             } else {
-                broadCast.stopBroadCast();
                 startBtn.setChecked(false);
+                broadCast.stopBroadCast();
             }
         }
     }

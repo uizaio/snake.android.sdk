@@ -349,12 +349,8 @@ class UZDisplayBroadCast(
     val isBroadCasting: Boolean
         get() = rtmpDisplay != null && rtmpDisplay?.isStreaming ?: false
 
-    @JvmOverloads
-    fun stopBroadCast(closeActivity: Boolean = true) {
+    fun stopBroadCast() {
         rtmpDisplay?.stopStream()
-        if (closeActivity) {
-            Handler().postDelayed({ activity.finish() }, 100)
-        }
     }
 
     /**
