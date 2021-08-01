@@ -382,7 +382,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
 
     private void setPopupMenu() {
         popupMenu = new PopupMenu(UZBroadCastActivity.this, menuButton);
-        popupMenu.getMenuInflater().inflate(R.menu.gl_menu, popupMenu.getMenu());
+        popupMenu.getMenuInflater().inflate(R.menu.menu_gl, popupMenu.getMenu());
         popupMenu.setOnMenuItemClickListener(this::onMenuItemSelected);
     }
 
