@@ -60,7 +60,6 @@
     <string name="temperature">Temperature</string>
     <string name="text">Text</string>
     <string name="zebra">Zebra</string>
-
     <string name="live_controls_record_description">Record</string>
     <string name="live_controls_switch_camera_description">Switch Camera</string>
     <string name="live_controls_start_live_description">Start Live</string>

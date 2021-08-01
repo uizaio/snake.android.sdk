@@ -309,7 +309,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
     @SuppressLint("ClickableViewAccessibility")
     private void onCreateView() {
         inflate(getContext(), R.layout.layout_uiza_glview, this);
-        openGlView = findViewById(R.id.camera_view);
+        openGlView = findViewById(R.id.cameraView);
         if (useCamera2)
             cameraHelper = new Camera2Helper(openGlView, connectCheckerRtmp);
         else
@@ -324,7 +324,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
         openGlView.setKeepAspectRatio(keepAspectRatio);
         openGlView.enableAA(AAEnabled);
         openGlView.setOnTouchListener(this);
-        tvLiveStatus = findViewById(R.id.live_status);
+        tvLiveStatus = findViewById(R.id.tvLiveStatus);
         progressBar = findViewById(R.id.pb);
         progressBar.getIndeterminateDrawable().setColorFilter(new PorterDuffColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY));
         cameraHelper.setConnectReTries(8);
