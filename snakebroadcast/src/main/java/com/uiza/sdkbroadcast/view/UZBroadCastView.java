@@ -178,6 +178,9 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
 
         @Override
         public void onConnectionFailedRtmp(@NonNull String reason) {
+            if (cameraHelper == null) {
+                return;
+            }
             if (cameraHelper.reTry(5000, reason)) {
                 if (runInBackground)
                     EventBus.getDefault().postSticky(new UZEvent("Retry connecting..."));

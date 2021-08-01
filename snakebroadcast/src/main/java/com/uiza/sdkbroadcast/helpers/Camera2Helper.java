@@ -55,7 +55,7 @@ public class Camera2Helper implements ICameraHelper {
     }
 
     @Override
-    public OpenGlView getOpenGlView() {
+    public OpenGlView getMOpenGlView() {
         return openGlView;
     }
 

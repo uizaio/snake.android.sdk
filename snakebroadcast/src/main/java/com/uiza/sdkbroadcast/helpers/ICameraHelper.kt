@@ -15,7 +15,7 @@ import com.uiza.sdkbroadcast.profile.VideoSize
 import java.io.IOException
 
 interface ICameraHelper {
-    val openGlView: OpenGlView?
+    val mOpenGlView: OpenGlView?
 
     /**
      * @param reTries retry connect reTries times

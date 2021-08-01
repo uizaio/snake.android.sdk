@@ -1,343 +1,297 @@
-package com.uiza.sdkbroadcast.helpers;
+package com.uiza.sdkbroadcast.helpers
 
-import android.content.Context;
-import android.hardware.Camera;
-import android.util.Log;
-import android.view.MotionEvent;
-
-import androidx.annotation.NonNull;
-
-import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
-import com.pedro.encoder.input.video.CameraHelper;
-import com.pedro.encoder.input.video.CameraOpenException;
-import com.pedro.rtplibrary.rtmp.RtmpCamera1;
-import com.pedro.rtplibrary.view.OpenGlView;
-import com.uiza.sdkbroadcast.enums.RecordStatus;
-import com.uiza.sdkbroadcast.interfaces.UZCameraChangeListener;
-import com.uiza.sdkbroadcast.interfaces.UZCameraOpenException;
-import com.uiza.sdkbroadcast.interfaces.UZRecordListener;
-import com.uiza.sdkbroadcast.interfaces.UZTakePhotoCallback;
-import com.uiza.sdkbroadcast.profile.AudioAttributes;
-import com.uiza.sdkbroadcast.profile.VideoAttributes;
-import com.uiza.sdkbroadcast.profile.VideoSize;
-import com.uiza.sdkbroadcast.util.ListUtils;
-
-import net.ossrs.rtmp.ConnectCheckerRtmp;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-import java.util.List;
+import android.content.Context
+import android.graphics.Bitmap
+import android.hardware.Camera
+import android.util.Log
+import android.view.MotionEvent
+import com.pedro.encoder.input.gl.render.filters.BaseFilterRender
+import com.pedro.encoder.input.video.CameraHelper.Facing
+import com.pedro.encoder.input.video.CameraOpenException
+import com.pedro.rtplibrary.rtmp.RtmpCamera1
+import com.pedro.rtplibrary.util.RecordController
+import com.pedro.rtplibrary.view.OpenGlView
+import com.uiza.sdkbroadcast.enums.RecordStatus.Companion.lookup
+import com.uiza.sdkbroadcast.interfaces.UZCameraChangeListener
+import com.uiza.sdkbroadcast.interfaces.UZCameraOpenException
+import com.uiza.sdkbroadcast.interfaces.UZRecordListener
+import com.uiza.sdkbroadcast.interfaces.UZTakePhotoCallback
+import com.uiza.sdkbroadcast.profile.AudioAttributes
+import com.uiza.sdkbroadcast.profile.VideoAttributes
+import com.uiza.sdkbroadcast.profile.VideoSize
+import com.uiza.sdkbroadcast.util.ListUtils.Pre
+import com.uiza.sdkbroadcast.util.ListUtils.map
+import net.ossrs.rtmp.ConnectCheckerRtmp
+import java.io.IOException
 
 /**
  * Wrapper to stream with camera1 api and microphone. Support stream with OpenGlView(Custom SurfaceView that use OpenGl).
  * OpenGlView use Surface to buffer mode(This mode is generally
  * better because skip buffer processing).
- * <p>
+ *
  * API requirements:
  * OpenGlView: API 18+.
- * <p>
+ *
  * Created by loitp on 01/08/2021.
  */
-public class Camera1Helper implements ICameraHelper {
-    private final String tag = getClass().getSimpleName();
-    private final RtmpCamera1 rtmpCamera1;
-    private UZCameraChangeListener uzCameraChangeListener;
-    private UZRecordListener uzRecordListener;
-    private OpenGlView openGlView;
-    private VideoAttributes videoAttributes;
-    private AudioAttributes audioAttributes;
-    private boolean isLandscape = false;
+class Camera1Helper(
+    openGlView: OpenGlView,
+    connectCheckerRtmp: ConnectCheckerRtmp?
+) :
 
-    public Camera1Helper(@NonNull OpenGlView openGlView, ConnectCheckerRtmp connectCheckerRtmp) {
-        this.rtmpCamera1 = new RtmpCamera1(openGlView, connectCheckerRtmp);
-        this.openGlView = openGlView;
+    ICameraHelper {
+    private val logTag = javaClass.simpleName
+    private val rtmpCamera1: RtmpCamera1 = RtmpCamera1(openGlView, connectCheckerRtmp)
+    private var uzCameraChangeListener: UZCameraChangeListener? = null
+    private var uzRecordListener: UZRecordListener? = null
+    override var mOpenGlView: OpenGlView? = null
+        private set
+    private var videoAttributes: VideoAttributes? = null
+    private var audioAttributes: AudioAttributes? = null
+    private var isLandscape = false
+
+    init {
+        this.mOpenGlView = openGlView
     }
 
-    @Override
-    public OpenGlView getOpenGlView() {
-        return openGlView;
+    override fun replaceView(openGlView: OpenGlView?) {
+        this.mOpenGlView = openGlView
+        rtmpCamera1.replaceView(openGlView)
     }
 
-    @Override
-    public void replaceView(OpenGlView openGlView) {
-        this.openGlView = openGlView;
-        rtmpCamera1.replaceView(openGlView);
+    override fun replaceView(context: Context?) {
+        this.mOpenGlView = null
+        rtmpCamera1.replaceView(context)
     }
 
-    @Override
-    public void replaceView(Context context) {
-        this.openGlView = null;
-        rtmpCamera1.replaceView(context);
+    override fun setVideoAttributes(attributes: VideoAttributes?) {
+        this.videoAttributes = attributes
     }
 
-    @Override
-    public void setVideoAttributes(VideoAttributes videoAttributes) {
-        this.videoAttributes = videoAttributes;
+    override fun setAudioAttributes(attributes: AudioAttributes?) {
+        this.audioAttributes = attributes
     }
 
-    @Override
-    public void setAudioAttributes(AudioAttributes audioAttributes) {
-        this.audioAttributes = audioAttributes;
+    override fun setLandscape(landscape: Boolean) {
+        isLandscape = landscape
     }
 
-    @Override
-    public void setLandscape(boolean landscape) {
-        this.isLandscape = landscape;
+    override fun setConnectReTries(reTries: Int) {
+        rtmpCamera1.setReTries(reTries)
     }
 
-    @Override
-    public void setConnectReTries(int reTries) {
-        rtmpCamera1.setReTries(reTries);
+    override fun reTry(delay: Long, reason: String?): Boolean {
+        return rtmpCamera1.reTry(delay, reason)
     }
 
-    @Override
-    public boolean reTry(long delay, @NonNull String reason) {
-        return rtmpCamera1.reTry(delay, reason);
+    override fun setUZCameraChangeListener(uzCameraChangeListener: UZCameraChangeListener?) {
+        this.uzCameraChangeListener = uzCameraChangeListener
     }
 
-    @Override
-    public void setUZCameraChangeListener(@NonNull UZCameraChangeListener uzCameraChangeListener) {
-        this.uzCameraChangeListener = uzCameraChangeListener;
+    override fun setUZRecordListener(uzRecordListener: UZRecordListener?) {
+        this.uzRecordListener = uzRecordListener
     }
 
-    @Override
-    public void setUZRecordListener(UZRecordListener uzRecordListener) {
-        this.uzRecordListener = uzRecordListener;
+    override fun setFilter(filterReader: BaseFilterRender?) {
+        rtmpCamera1.glInterface.setFilter(filterReader)
     }
 
-
-    @Override
-    public void setFilter(@NotNull BaseFilterRender filterReader) {
-        rtmpCamera1.getGlInterface().setFilter(filterReader);
+    override fun setFilter(filterPosition: Int, filterReader: BaseFilterRender?) {
+        rtmpCamera1.glInterface.setFilter(filterPosition, filterReader)
     }
 
-    @Override
-    public void setFilter(int filterPosition, @NotNull BaseFilterRender filterReader) {
-        rtmpCamera1.getGlInterface().setFilter(filterPosition, filterReader);
+    override fun enableAA(aAEnabled: Boolean) {
+        rtmpCamera1.glInterface.enableAA(aAEnabled)
     }
 
-    @Override
-    public void enableAA(boolean aAEnabled) {
-        rtmpCamera1.getGlInterface().enableAA(aAEnabled);
+    override val isAAEnabled: Boolean
+        get() = rtmpCamera1.glInterface.isAAEnabled
+
+    override val streamWidth: Int
+        get() = rtmpCamera1.streamHeight
+
+    override val streamHeight: Int
+        get() = rtmpCamera1.streamWidth
+
+    override fun enableAudio() {
+        rtmpCamera1.enableAudio()
     }
 
-    @Override
-    public boolean isAAEnabled() {
-        return rtmpCamera1.getGlInterface().isAAEnabled();
+    override fun disableAudio() {
+        rtmpCamera1.disableAudio()
     }
 
-    @Override
-    public int getStreamWidth() {
-        return rtmpCamera1.getStreamHeight();
+    override val isAudioMuted: Boolean
+        get() = rtmpCamera1.isAudioMuted
+
+    override fun prepareBroadCast(): Boolean {
+        return prepareBroadCast(isLandscape)
     }
 
-    @Override
-    public int getStreamHeight() {
-        return rtmpCamera1.getStreamWidth();
-    }
-
-    @Override
-    public void enableAudio() {
-        rtmpCamera1.enableAudio();
-    }
-
-    @Override
-    public void disableAudio() {
-        rtmpCamera1.disableAudio();
-    }
-
-    @Override
-    public boolean isAudioMuted() {
-        return rtmpCamera1.isAudioMuted();
-    }
-
-    @Override
-    public boolean prepareBroadCast() {
-        return prepareBroadCast(isLandscape);
-    }
-
-    @Override
-    public boolean prepareBroadCast(boolean isLandscape) {
+    override fun prepareBroadCast(isLandscape: Boolean): Boolean {
         if (videoAttributes == null) {
-            Log.e(tag, "Please set videoAttributes");
-            return false;
+            Log.e(logTag, "Please set videoAttributes")
+            return false
         }
-        return prepareBroadCast(audioAttributes, videoAttributes, isLandscape);
+        return prepareBroadCast(audioAttributes, videoAttributes!!, isLandscape)
     }
 
-    @Override
-    public boolean prepareBroadCast(AudioAttributes audioAttributes, @NonNull VideoAttributes videoAttributes, boolean isLandscape) {
-        this.audioAttributes = audioAttributes;
-        this.videoAttributes = videoAttributes;
-        this.isLandscape = isLandscape;
-        return (audioAttributes == null) ? prepareVideo(videoAttributes, isLandscape ? 0 : 90) :
-                prepareAudio(audioAttributes) && prepareVideo(videoAttributes, isLandscape ? 0 : 90);
+    override fun prepareBroadCast(
+        audioAttributes: AudioAttributes?,
+        videoAttributes: VideoAttributes,
+        isLandscape: Boolean
+    ): Boolean {
+        this.audioAttributes = audioAttributes
+        this.videoAttributes = videoAttributes
+        this.isLandscape = isLandscape
+        return if (audioAttributes == null) prepareVideo(
+            videoAttributes,
+            if (isLandscape) 0 else 90
+        ) else prepareAudio(audioAttributes) && prepareVideo(
+            videoAttributes,
+            if (isLandscape) 0 else 90
+        )
     }
 
-    private boolean prepareAudio(@NonNull AudioAttributes attrs) {
+    private fun prepareAudio(attrs: AudioAttributes): Boolean {
         return rtmpCamera1.prepareAudio(
-                attrs.getBitRate(),
-                attrs.getSampleRate(),
-                attrs.isStereo(),
-                attrs.isEchoCanceler(),
-                attrs.isNoiseSuppressor()
-        );
+            attrs.bitRate,
+            attrs.sampleRate,
+            attrs.isStereo,
+            attrs.isEchoCanceler,
+            attrs.isNoiseSuppressor
+        )
     }
 
-    @Override
-    public boolean isVideoEnabled() {
-        return rtmpCamera1.isVideoEnabled();
+    override val isVideoEnabled: Boolean
+        get() = rtmpCamera1.isVideoEnabled
+
+    private fun prepareVideo(attrs: VideoAttributes, rotation: Int): Boolean {
+        return rtmpCamera1.prepareVideo(
+            attrs.size.width,
+            attrs.size.height,
+            attrs.frameRate,
+            attrs.bitRate,
+            false,
+            attrs.frameInterval,
+            rotation,
+            attrs.aVCProfile,
+            attrs.aVCProfileLevel
+        )
     }
 
-    private boolean prepareVideo(@NotNull VideoAttributes attrs, int rotation) {
-        return rtmpCamera1.prepareVideo(attrs.getSize().getWidth(),
-                attrs.getSize().getHeight(),
-                attrs.getFrameRate(),
-                attrs.getBitRate(),
-                false,
-                attrs.getFrameInterval(),
-                rotation,
-                attrs.getAVCProfile(),
-                attrs.getAVCProfileLevel()
-        );
+    override fun startBroadCast(broadCastUrl: String?) {
+        rtmpCamera1.startStream(broadCastUrl)
     }
 
-    @Override
-    public void startBroadCast(@NotNull String broadCastUrl) {
-        rtmpCamera1.startStream(broadCastUrl);
+    override fun stopBroadCast() {
+        rtmpCamera1.stopStream()
     }
 
-    @Override
-    public void stopBroadCast() {
-        rtmpCamera1.stopStream();
+    override val isBroadCasting: Boolean
+        get() = rtmpCamera1.isStreaming
+
+    override fun setVideoBitrateOnFly(bitrate: Int) {
+        rtmpCamera1.setVideoBitrateOnFly(bitrate)
     }
 
-    @Override
-    public boolean isBroadCasting() {
-        return rtmpCamera1.isStreaming();
-    }
+    override val bitrate: Int
+        get() = rtmpCamera1.bitrate
 
-    @Override
-    public void setVideoBitrateOnFly(int bitrate) {
-        rtmpCamera1.setVideoBitrateOnFly(bitrate);
-    }
+    override val isFrontCamera: Boolean
+        get() = rtmpCamera1.isFrontCamera
 
-    @Override
-    public int getBitrate() {
-        return rtmpCamera1.getBitrate();
-    }
-
-    @Override
-    public boolean isFrontCamera() {
-        return rtmpCamera1.isFrontCamera();
-    }
-
-    @Override
-    public void switchCamera() throws UZCameraOpenException {
+    @Throws(UZCameraOpenException::class)
+    override fun switchCamera() {
         try {
-            rtmpCamera1.switchCamera();
-        } catch (CameraOpenException e) {
-            throw new UZCameraOpenException(e.getMessage());
+            rtmpCamera1.switchCamera()
+        } catch (e: CameraOpenException) {
+            throw UZCameraOpenException(e.message)
         }
-        if (uzCameraChangeListener != null)
-            uzCameraChangeListener.onCameraChange(rtmpCamera1.isFrontCamera());
+        uzCameraChangeListener?.onCameraChange(rtmpCamera1.isFrontCamera)
     }
 
-    @Override
-    public List<VideoSize> getSupportedResolutions() {
-        List<Camera.Size> sizes;
-        if (rtmpCamera1.isFrontCamera()) {
-            sizes = rtmpCamera1.getResolutionsFront();
+    override val supportedResolutions: List<VideoSize>
+        get() {
+            val sizes: List<Camera.Size> = if (rtmpCamera1.isFrontCamera) {
+                rtmpCamera1.resolutionsFront
+            } else {
+                rtmpCamera1.resolutionsBack
+            }
+            return map(
+                sizes,
+                object : Pre<Camera.Size, VideoSize> {
+                    override fun get(item: Camera.Size): VideoSize {
+                        return VideoSize.fromSize(item)
+                    }
+                })
+        }
+
+    override fun startPreview(cameraFacing: Facing?) {
+        // because portrait
+        rtmpCamera1.startPreview(cameraFacing, 480, 854)
+    }
+
+    override fun startPreview(cameraFacing: Facing?, width: Int, height: Int) {
+        // because portrait
+        rtmpCamera1.startPreview(cameraFacing, height, width)
+    }
+
+    override val isOnPreview: Boolean
+        get() = rtmpCamera1.isOnPreview
+
+    override fun stopPreview() {
+        rtmpCamera1.stopPreview()
+    }
+
+    override val isRecording: Boolean
+        get() = rtmpCamera1.isRecording
+
+    @Throws(IOException::class)
+    override fun startRecord(savePath: String?) {
+        if (uzRecordListener != null) rtmpCamera1.startRecord(savePath) { status: RecordController.Status ->
+            uzRecordListener?.onStatusChange(
+                lookup(
+                    status
+                )
+            )
         } else {
-            sizes = rtmpCamera1.getResolutionsBack();
+            rtmpCamera1.startRecord(savePath)
         }
-        return ListUtils.map(sizes, VideoSize::fromSize);
     }
 
-    @Override
-    public void startPreview(@NotNull CameraHelper.Facing cameraFacing) {
-        // because portrait
-        rtmpCamera1.startPreview(cameraFacing, 480, 854);
+    override fun stopRecord() {
+        rtmpCamera1.stopRecord()
+        rtmpCamera1.startPreview()
     }
 
-    @Override
-    public void startPreview(@NotNull CameraHelper.Facing cameraFacing, int w, int h) {
-        // because portrait
-        rtmpCamera1.startPreview(cameraFacing, h, w);
+    override fun takePhoto(callback: UZTakePhotoCallback?) {
+        rtmpCamera1.glInterface.takePhoto { bitmap: Bitmap? -> callback?.onTakePhoto(bitmap) }
     }
 
-    @Override
-    public boolean isOnPreview() {
-        return rtmpCamera1.isOnPreview();
+    override val isLanternSupported: Boolean
+        get() = false
+
+    @Throws(Exception::class)
+    override fun enableLantern() {
+        rtmpCamera1.enableLantern()
     }
 
-    @Override
-    public void stopPreview() {
-        rtmpCamera1.stopPreview();
+    override fun disableLantern() {
+        rtmpCamera1.disableLantern()
     }
 
-    @Override
-    public boolean isRecording() {
-        return rtmpCamera1.isRecording();
-    }
+    override val isLanternEnabled: Boolean
+        get() = rtmpCamera1.isLanternEnabled
 
-    @Override
-    public void startRecord(@NotNull String savePath) throws IOException {
-        if (uzRecordListener != null)
-            rtmpCamera1.startRecord(savePath, status -> uzRecordListener.onStatusChange(RecordStatus.lookup(status)));
-        else
-            rtmpCamera1.startRecord(savePath);
-    }
+    override val maxZoom: Float
+        get() = 1.0f
 
-    @Override
-    public void stopRecord() {
-        rtmpCamera1.stopRecord();
-        rtmpCamera1.startPreview();
-    }
+    override var zoom: Float
+        get() = 1.0f
+        set(level) {}
 
-    @Override
-    public void takePhoto(@NonNull UZTakePhotoCallback callback) {
-        rtmpCamera1.getGlInterface().takePhoto(callback::onTakePhoto);
-    }
-
-    @Override
-    public boolean isLanternSupported() {
-        return false;
-    }
-
-    @Override
-    public void enableLantern() throws Exception {
-        rtmpCamera1.enableLantern();
-    }
-
-    @Override
-    public void disableLantern() {
-        rtmpCamera1.disableLantern();
-    }
-
-    @Override
-    public boolean isLanternEnabled() {
-        return rtmpCamera1.isLanternEnabled();
-    }
-
-    @Override
-    public float getMaxZoom() {
-        return 1.0f;
-    }
-
-    @Override
-    public float getZoom() {
-        return 1.0f;
-    }
-
-    @Override
-    public void setZoom(float level) {
-
-    }
-
-    @Override
-    public void setZoom(@NotNull MotionEvent event) {
-        rtmpCamera1.setZoom(event);
+    override fun setZoom(event: MotionEvent?) {
+        rtmpCamera1.setZoom(event)
     }
 }
