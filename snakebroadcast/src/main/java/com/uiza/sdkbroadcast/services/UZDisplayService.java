@@ -93,7 +93,15 @@ public class UZDisplayService extends Service {
         EventBus.getDefault().register(this);
         String mBroadCastUrl = intent.getStringExtra(EXTRA_BROAD_CAST_URL);
         if (!TextUtils.isEmpty(mBroadCastUrl)) {
-            displayBroadCast.getRtmpDisplay().startStream(mBroadCastUrl);
+            //TODO loitp check this sometimes error
+            //dau tien nhan live bang camera
+            //sau do tat live camera
+            //roi tiep tuc live bang display => se nhay vao case error
+            try {
+                displayBroadCast.getRtmpDisplay().startStream(mBroadCastUrl);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return START_STICKY;
     }
