@@ -79,7 +79,7 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * @required: <uses-permission android:name="android.permission.CAMERA"/> and
+ * required: <uses-permission android:name="android.permission.CAMERA"/> and
  * <uses-permission android:name="android.permission.RECORD_AUDIO"/>
  */
 public class UZBroadCastView extends RelativeLayout implements View.OnTouchListener {
@@ -111,9 +111,8 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
     private BitrateAdapter bitrateAdapter;
     private VideoAttributes videoAttributes;
     private AudioAttributes audioAttributes;
-    private SpriteGestureController spriteGestureController = new SpriteGestureController();
-
-    private SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
+    private final SpriteGestureController spriteGestureController = new SpriteGestureController();
+    private final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
@@ -155,7 +154,7 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
 
         }
     };
-    private ConnectCheckerRtmp connectCheckerRtmp = new ConnectCheckerRtmp() {
+    private final ConnectCheckerRtmp connectCheckerRtmp = new ConnectCheckerRtmp() {
         @Override
         public void onConnectionSuccessRtmp() {
             if (adaptiveBitrate) {
@@ -471,9 +470,9 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
                 stopBroadCast(); // make sure stop stream and start it again
                 if (prepareBroadCast() && !TextUtils.isEmpty(mainBroadCastUrl))
                     startBroadCast(mainBroadCastUrl);
-            } catch (Exception ignored) {
+            } catch (Exception exception) {
 //                Cannot resume broadcasting right now!
-                ignored.printStackTrace();
+                exception.printStackTrace();
             }
         }, SECOND);
     }
@@ -589,8 +588,8 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
 
     /**
      * @param savePath path of save file
-     * @throws IOException
-     * @required: <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+     *                 throws IOException
+     *                 required: <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
      */
     public void startRecord(String savePath) throws IOException {
         cameraHelper.startRecord(savePath);
@@ -611,8 +610,8 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
 
     /**
      * Take a photo
-     *
-     * @param callback
+     * <p>
+     * param callback
      */
     public void takePhoto(@NonNull UZTakePhotoCallback callback) {
         cameraHelper.takePhoto(callback);
@@ -739,14 +738,14 @@ public class UZBroadCastView extends RelativeLayout implements View.OnTouchListe
     }
 
     /**
-     * @required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
+     * required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
      */
     public void enableLantern() throws Exception {
         cameraHelper.enableLantern();
     }
 
     /**
-     * @required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
+     * required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
      */
     public void disableLantern() {
         cameraHelper.disableLantern();
