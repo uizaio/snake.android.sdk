@@ -12,6 +12,7 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.uiza.sdkbroadcast.R
 import com.uiza.sdkbroadcast.UZBroadCast.Companion.iconNotify
 import com.uiza.sdkbroadcast.events.EventSignal
 import com.uiza.sdkbroadcast.events.UZEvent
@@ -44,11 +45,12 @@ class UZDisplayService : Service() {
     private val logTag = javaClass.simpleName
 
     private fun showNotification(content: String) {
-        val notification = NotificationCompat.Builder(baseContext, channelId)
-            .setSmallIcon(iconNotify)
-            .setContentTitle(baseContext.getString(com.uiza.sdkbroadcast.R.string.app_name))
-            .setContentText(content)
-            .build()
+        val notification =
+            NotificationCompat.Builder(baseContext, channelId)
+                .setSmallIcon(iconNotify)
+                .setContentTitle(baseContext.getString(com.uiza.sdkbroadcast.R.string.app_name))
+                .setContentText(content)
+                .build()
         val notifyId = 123456
         notificationManager?.notify(notifyId, notification)
     }
@@ -93,8 +95,15 @@ class UZDisplayService : Service() {
         EventBus.getDefault().register(this)
         val mBroadCastUrl = intent.getStringExtra(EXTRA_BROAD_CAST_URL)
         if (!TextUtils.isEmpty(mBroadCastUrl)) {
-            //TODO loitp check this sometimes error
-            displayBroadCast?.rtmpDisplay?.startStream(mBroadCastUrl)
+            displayBroadCast?.rtmpDisplay?.let {
+                if (!it.isStreaming) {
+                    if (it.prepareVideo() && it.prepareAudio()) {
+                        it.startStream(mBroadCastUrl)
+                    }
+                } else {
+                    showNotification(getString(R.string.you_are_already_broadcasting))
+                }
+            }
         }
         return START_STICKY
     }
