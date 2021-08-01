@@ -16,5 +16,7 @@ class Constant {
         const val DEFAULT_AUDIO_BITRATE = "128"
         const val DEFAULT_SAMPLE_RATE = "44100"
         const val DEFAULT_AUDIO_STEREO = true
+
+        const val EXTRA_STREAM_ENDPOINT = "uiza_live_extra_stream_endpoint"
     }
 }

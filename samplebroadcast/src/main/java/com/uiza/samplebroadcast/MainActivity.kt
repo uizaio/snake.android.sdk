@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         btnStart.setOnClickListener {
             val intent = Intent(this, UZBroadCastActivity::class.java)
             intent.putExtra(
-                SampleLiveApplication.EXTRA_STREAM_ENDPOINT,
+                Constant.EXTRA_STREAM_ENDPOINT,
                 String.format("%s/%s", edtServer.text.toString(), edtStreamKey.text.toString())
             )
             startActivity(intent)
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         btnStartDisplay.setOnClickListener {
             val intent = Intent(this, UZDisplayActivity::class.java)
             intent.putExtra(
-                SampleLiveApplication.EXTRA_STREAM_ENDPOINT,
+                Constant.EXTRA_STREAM_ENDPOINT,
                 String.format("%s/%s", edtServer.text.toString(), edtStreamKey.text.toString())
             )
             startActivity(intent)

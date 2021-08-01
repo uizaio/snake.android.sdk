@@ -1,17 +1,13 @@
-package com.uiza.samplebroadcast;
+package com.uiza.samplebroadcast
 
-import androidx.multidex.MultiDexApplication;
+import androidx.multidex.MultiDexApplication
+import com.uiza.sdkbroadcast.UZBroadCast
 
-import com.uiza.sdkbroadcast.UZBroadCast;
+class SampleLiveApplication : MultiDexApplication() {
 
-public class SampleLiveApplication extends MultiDexApplication {
+    override fun onCreate() {
+        super.onCreate()
 
-    public static final String EXTRA_STREAM_ENDPOINT = "uiza_live_extra_stream_endpoint";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        UZBroadCast.Companion.init(R.mipmap.ic_launcher);
+        UZBroadCast.init(R.drawable.snake)
     }
 }

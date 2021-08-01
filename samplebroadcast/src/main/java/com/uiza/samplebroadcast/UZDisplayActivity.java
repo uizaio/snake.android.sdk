@@ -40,7 +40,7 @@ public class UZDisplayActivity extends AppCompatActivity implements View.OnClick
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         broadCast = new UZDisplayBroadCast(this);
         broadCast.setUZBroadCastListener(this);
-        broadCastUrl = getIntent().getStringExtra(SampleLiveApplication.EXTRA_STREAM_ENDPOINT);
+        broadCastUrl = getIntent().getStringExtra(Constant.EXTRA_STREAM_ENDPOINT);
         if (TextUtils.isEmpty(broadCastUrl)) {
             finish();
         }

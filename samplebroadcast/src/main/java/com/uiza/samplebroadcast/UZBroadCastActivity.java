@@ -82,7 +82,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         if (movieFolder != null)
             folder = new File(movieFolder.getAbsolutePath()
                     + RECORD_FOLDER);
-        broadCastUrl = getIntent().getStringExtra(SampleLiveApplication.EXTRA_STREAM_ENDPOINT);
+        broadCastUrl = getIntent().getStringExtra(Constant.EXTRA_STREAM_ENDPOINT);
         if (TextUtils.isEmpty(broadCastUrl)) {
             finish();
         }
