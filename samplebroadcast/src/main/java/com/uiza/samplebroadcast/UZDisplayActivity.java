@@ -23,7 +23,7 @@ import com.uiza.sdkbroadcast.profile.VideoAttributes;
 import com.uiza.sdkbroadcast.view.UZDisplayBroadCast;
 import com.uiza.widget.UZMediaButton;
 
-public class UZDisplayActivity extends AppCompatActivity implements View.OnClickListener, UZBroadCastListener, Constant {
+public class UZDisplayActivity extends AppCompatActivity implements View.OnClickListener, UZBroadCastListener {
     private final String logTag = getClass().getSimpleName();
     UZMediaButton startBtn;
     SharedPreferences preferences;
@@ -44,13 +44,13 @@ public class UZDisplayActivity extends AppCompatActivity implements View.OnClick
         if (TextUtils.isEmpty(broadCastUrl)) {
             finish();
         }
-        int profile = Integer.parseInt(preferences.getString(PREF_CAMERA_PROFILE, DEFAULT_CAMERA_PROFILE));
-        int maxBitrate = Integer.parseInt(preferences.getString(PREF_VIDEO_BITRATE, DEFAULT_MAX_BITRATE));
-        int fps = Integer.parseInt(preferences.getString(PREF_FPS, DEFAULT_FPS));
-        int frameInterval = Integer.parseInt(preferences.getString(PREF_FRAME_INTERVAL, DEFAULT_FRAME_INTERVAL));
-        int audioBitrate = Integer.parseInt(preferences.getString(PREF_AUDIO_BITRATE, DEFAULT_AUDIO_BITRATE));
-        int audioSampleRate = Integer.parseInt(preferences.getString(PREF_SAMPLE_RATE, DEFAULT_SAMPLE_RATE));
-        boolean stereo = preferences.getBoolean(PREF_AUDIO_STEREO, DEFAULT_AUDIO_STEREO);
+        int profile = Integer.parseInt(preferences.getString(Constant.PREF_CAMERA_PROFILE, Constant.DEFAULT_CAMERA_PROFILE));
+        int maxBitrate = Integer.parseInt(preferences.getString(Constant.PREF_VIDEO_BITRATE, Constant.DEFAULT_MAX_BITRATE));
+        int fps = Integer.parseInt(preferences.getString(Constant.PREF_FPS, Constant.DEFAULT_FPS));
+        int frameInterval = Integer.parseInt(preferences.getString(Constant.PREF_FRAME_INTERVAL, Constant.DEFAULT_FRAME_INTERVAL));
+        int audioBitrate = Integer.parseInt(preferences.getString(Constant.PREF_AUDIO_BITRATE, Constant.DEFAULT_AUDIO_BITRATE));
+        int audioSampleRate = Integer.parseInt(preferences.getString(Constant.PREF_SAMPLE_RATE, Constant.DEFAULT_SAMPLE_RATE));
+        boolean stereo = preferences.getBoolean(Constant.PREF_AUDIO_STEREO, Constant.DEFAULT_AUDIO_STEREO);
         VideoAttributes videoAttributes;
         if (profile == 1080)
             videoAttributes = VideoAttributes.FHD_1080p(fps, maxBitrate, frameInterval);
