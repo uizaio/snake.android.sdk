@@ -6,7 +6,6 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
-import android.os.Handler
 import android.util.Log
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
