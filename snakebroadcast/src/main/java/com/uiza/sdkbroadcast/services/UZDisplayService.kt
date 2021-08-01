@@ -99,6 +99,7 @@ class UZDisplayService : Service() {
         val mBroadCastUrl = intent.getStringExtra(EXTRA_BROAD_CAST_URL)
         if (!TextUtils.isEmpty(mBroadCastUrl)) {
             //TODO loitp check this sometimes error
+            //tai hien, UZDisplayActivity start -> stop stream -> start again -> error
             try {
                 displayBroadCast?.rtmpDisplay?.let { rtmp ->
                     if (rtmp.isStreaming) {
