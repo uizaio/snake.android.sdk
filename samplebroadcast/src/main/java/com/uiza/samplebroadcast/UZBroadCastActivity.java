@@ -8,6 +8,7 @@ import android.graphics.PointF;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -42,12 +43,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-import timber.log.Timber;
-
 public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCastListener,
         View.OnClickListener, UZRecordListener, UZCameraChangeListener, Constant {
 
-
+    private static final String logTag = UZBroadCastActivity.class.getSimpleName();
     private static final String RECORD_FOLDER = "uzbroadcast";
     int beforeRotation;
     PopupMenu popupMenu;
@@ -110,7 +109,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
             broadCastView.setAudioAttributes(audioAttributes);
             broadCastView.setBackgroundAllowedDuration(10000);
         } catch (NullPointerException e) {
-            Timber.e(e);
+            e.printStackTrace();
         }
     }
 
@@ -439,17 +438,17 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
 
     @Override
     public void surfaceCreated() {
-        Timber.e("surfaceCreated");
+        Log.e(logTag, "surfaceCreated");
     }
 
     @Override
     public void surfaceChanged(int format, int width, int height) {
-        Timber.e("surfaceChanged: {" + format + ", " + width + ", " + height + "}");
+        Log.e(logTag, "surfaceChanged: {" + format + ", " + width + ", " + height + "}");
     }
 
     @Override
     public void surfaceDestroyed() {
-        Timber.e("surfaceDestroyed");
+        Log.e(logTag, "surfaceDestroyed");
     }
 
     @Override
@@ -459,7 +458,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
 
     @Override
     public void onCameraChange(boolean isFrontCamera) {
-        Timber.e("onCameraChange: %b", isFrontCamera);
+        Log.e(logTag, "onCameraChange: " + isFrontCamera);
     }
 
     @Override

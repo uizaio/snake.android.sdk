@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mServerEdt = findViewById(R.id.edt_server);
         mStreamKeyEdt = findViewById(R.id.edt_stream_key);
-        mServerEdt.setText("rtmp://4e6dfc40ff-in.streamwiz.dev/live");
-        mStreamKeyEdt.setText("live_59DB9cIVN9");
+        mServerEdt.setText("rtmps://live-api-s.facebook.com:443/rtmp/");
+        mStreamKeyEdt.setText("FB-4111254245662108-0-Abw4b9YFhJT8AgpF");
         findViewById(R.id.btn_start).setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, UZBroadCastActivity.class);
             intent.putExtra(SampleLiveApplication.EXTRA_STREAM_ENDPOINT, String.format("%s/%s", mServerEdt.getText().toString(), mStreamKeyEdt.getText().toString()));

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="cameraView" type="id" />
+    <item name="pb" type="id" />
+    <item name="tvLiveStatus" type="id" />
+</resources>

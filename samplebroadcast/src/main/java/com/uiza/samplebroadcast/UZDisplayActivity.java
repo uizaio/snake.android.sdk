@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -22,10 +23,8 @@ import com.uiza.sdkbroadcast.profile.VideoAttributes;
 import com.uiza.sdkbroadcast.view.UZDisplayBroadCast;
 import com.uiza.widget.UZMediaButton;
 
-import timber.log.Timber;
-
 public class UZDisplayActivity extends AppCompatActivity implements View.OnClickListener, UZBroadCastListener, Constant {
-
+    private final String logTag = getClass().getSimpleName();
     UZMediaButton startBtn;
     SharedPreferences preferences;
     String broadCastUrl;
@@ -70,7 +69,7 @@ public class UZDisplayActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             onBackPressed();
         }
         return super.onOptionsItemSelected(item);
@@ -132,7 +131,7 @@ public class UZDisplayActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onInit(boolean success) {
-        Timber.i("audioPermission %b", success);
+        Log.i(logTag, "audioPermission " + success);
     }
 
     @Override
