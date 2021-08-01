@@ -27,14 +27,12 @@ import org.greenrobot.eventbus.ThreadMode;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class UZRTMPService extends Service {
-    private final String tag = getClass().getSimpleName();
+    private final String logTag = getClass().getSimpleName();
     public static final String EXTRA_BROAD_CAST_URL = "uz_extra_broad_cast_url";
     static ICameraHelper cameraHelper;
-
     static NotificationManager notificationManager;
     static int notifyId = 654321;
     static String channelId = "UZStreamChannel";
-
 
     public static void init(ICameraHelper cameraHelper) {
         UZRTMPService.cameraHelper = cameraHelper;
@@ -62,15 +60,16 @@ public class UZRTMPService extends Service {
     }
 
     private void keepAliveTrick() {
+        int id = 101;
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             Notification notification = new NotificationCompat.Builder(this, channelId)
                     .setOngoing(true)
                     .setContentTitle("")
                     .setContentText("")
                     .build();
-            startForeground(101, notification);
+            startForeground(id, notification);
         } else
-            startForeground(101, new Notification());
+            startForeground(id, new Notification());
     }
 
     @Nullable
@@ -81,7 +80,6 @@ public class UZRTMPService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // STATIC
         EventBus.getDefault().register(this);
         String mBroadCastUrl = intent.getStringExtra(EXTRA_BROAD_CAST_URL);
         if (!TextUtils.isEmpty(mBroadCastUrl)) {
@@ -91,7 +89,7 @@ public class UZRTMPService extends Service {
                     cameraHelper.startBroadCast(mBroadCastUrl);
                 }
             } else {
-                showNotification("You are already broadcasting :)");
+                showNotification("You are already broadcasting.");
             }
         }
         return START_STICKY;
@@ -106,10 +104,11 @@ public class UZRTMPService extends Service {
 
     @Subscribe(sticky = true, threadMode = ThreadMode.BACKGROUND)
     public void handleEvent(UZEvent event) {
-        Log.e(tag, "#handleEvent: called for " + event.getMessage());
+        Log.e(logTag, "#handleEvent: called for " + event.getMessage());
         if (event.getSignal() == EventSignal.STOP)
             stopSelf();
-        else
+        else {
             showNotification(event.getMessage());
+        }
     }
 }
