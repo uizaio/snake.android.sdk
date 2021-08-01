@@ -1,103 +1,87 @@
-package com.uiza.sdkbroadcast.helpers;
+package com.uiza.sdkbroadcast.helpers
 
-import android.content.Context;
-import android.view.MotionEvent;
+import android.content.Context
+import android.view.MotionEvent
+import com.pedro.encoder.input.gl.render.filters.BaseFilterRender
+import com.pedro.encoder.input.video.CameraHelper.Facing
+import com.pedro.rtplibrary.view.OpenGlView
+import com.uiza.sdkbroadcast.interfaces.UZCameraChangeListener
+import com.uiza.sdkbroadcast.interfaces.UZCameraOpenException
+import com.uiza.sdkbroadcast.interfaces.UZRecordListener
+import com.uiza.sdkbroadcast.interfaces.UZTakePhotoCallback
+import com.uiza.sdkbroadcast.profile.AudioAttributes
+import com.uiza.sdkbroadcast.profile.VideoAttributes
+import com.uiza.sdkbroadcast.profile.VideoSize
+import java.io.IOException
 
-import androidx.annotation.NonNull;
-
-import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
-import com.pedro.encoder.input.video.CameraHelper;
-import com.pedro.rtplibrary.base.Camera2Base;
-import com.pedro.rtplibrary.view.OpenGlView;
-import com.uiza.sdkbroadcast.interfaces.UZCameraChangeListener;
-import com.uiza.sdkbroadcast.interfaces.UZCameraOpenException;
-import com.uiza.sdkbroadcast.interfaces.UZRecordListener;
-import com.uiza.sdkbroadcast.interfaces.UZTakePhotoCallback;
-import com.uiza.sdkbroadcast.profile.AudioAttributes;
-import com.uiza.sdkbroadcast.profile.VideoAttributes;
-import com.uiza.sdkbroadcast.profile.VideoSize;
-
-import java.io.IOException;
-import java.util.List;
-
-public interface ICameraHelper {
-
-    OpenGlView getOpenGlView();
+interface ICameraHelper {
+    val openGlView: OpenGlView?
 
     /**
      * @param reTries retry connect reTries times
      */
-    void setConnectReTries(int reTries);
-
-    void setUZCameraChangeListener(UZCameraChangeListener uzCameraChangeListener);
-
-    void setUZRecordListener(UZRecordListener uzRecordListener);
-
-    void replaceView(OpenGlView openGlView);
-
-    void replaceView(Context context);
-
-    void setVideoAttributes(VideoAttributes attributes);
-
-    void setAudioAttributes(AudioAttributes attributes);
-
-    void setLandscape(boolean landscape);
+    fun setConnectReTries(reTries: Int)
+    fun setUZCameraChangeListener(uzCameraChangeListener: UZCameraChangeListener?)
+    fun setUZRecordListener(uzRecordListener: UZRecordListener?)
+    fun replaceView(openGlView: OpenGlView?)
+    fun replaceView(context: Context?)
+    fun setVideoAttributes(attributes: VideoAttributes?)
+    fun setAudioAttributes(attributes: AudioAttributes?)
+    fun setLandscape(landscape: Boolean)
 
     /**
      * Set filter in position 0.
      *
      * @param filterReader filter to set. You can modify parameters to filter after set it to stream.
      */
-    void setFilter(BaseFilterRender filterReader);
+    fun setFilter(filterReader: BaseFilterRender?)
 
     /**
      * @param filterPosition position of filter
      * @param filterReader   filter to set. You can modify parameters to filter after set it to stream.
      */
-    void setFilter(int filterPosition, BaseFilterRender filterReader);
+    fun setFilter(filterPosition: Int, filterReader: BaseFilterRender?)
 
     /**
      * Get Anti alias is enabled.
      *
      * @return true is enabled, false is disabled.
      */
-    boolean isAAEnabled();
+    val isAAEnabled: Boolean
 
     /**
      * Enable or disable Anti aliasing (This method use FXAA).
      *
      * @param aAEnabled true is AA enabled, false is AA disabled. False by default.
      */
-    void enableAA(boolean aAEnabled);
+    fun enableAA(aAEnabled: Boolean)
 
     /**
      * get Stream Width
      */
-    int getStreamWidth();
+    val streamWidth: Int
 
     /**
      * get Stream Height
      */
-    int getStreamHeight();
+    val streamHeight: Int
 
     /**
      * Enable a muted microphone, can be called before, while and after broadcast.
      */
-    void enableAudio();
-
+    fun enableAudio()
 
     /**
      * Mute microphone, can be called before, while and after broadcast.
      */
-
-    void disableAudio();
+    fun disableAudio()
 
     /**
      * Get mute state of microphone.
      *
      * @return true if muted, false if enabled
      */
-    boolean isAudioMuted();
+    val isAudioMuted: Boolean
 
     /**
      * You will do a portrait broadcast
@@ -105,117 +89,120 @@ public interface ICameraHelper {
      * @return true if success, false if you get a error (Normally because the encoder selected
      * doesn't support any configuration seated or your device hasn't a H264 encoder).
      */
-    boolean prepareBroadCast();
-
+    fun prepareBroadCast(): Boolean
 
     /**
      * @param isLandscape boolean
      * @return true if success, false if you get a error (Normally because the encoder selected
      * doesn't support any configuration seated or your device hasn't a H264 encoder).
      */
-    boolean prepareBroadCast(boolean isLandscape);
+    fun prepareBroadCast(isLandscape: Boolean): Boolean
 
     /**
-     * Call this method before use {@link #startBroadCast(String)}.
+     * Call this method before use [.startBroadCast].
      *
-     * @param audioAttributes {@link AudioAttributes} If null you will do a broadcast without audio.
-     * @param videoAttributes {@link VideoAttributes}
+     * @param audioAttributes [AudioAttributes] If null you will do a broadcast without audio.
+     * @param videoAttributes [VideoAttributes]
      * @param isLandscape     boolean you will broadcast is landscape
      * @return true if success, false if you get a error (Normally because the encoder selected
      * doesn't support any configuration seated or your device hasn't a AAC encoder).
      */
-    boolean prepareBroadCast(AudioAttributes audioAttributes, @NonNull VideoAttributes videoAttributes, boolean isLandscape);
-
+    fun prepareBroadCast(
+        audioAttributes: AudioAttributes?,
+        videoAttributes: VideoAttributes,
+        isLandscape: Boolean
+    ): Boolean
 
     /**
      * Get video camera state
      *
      * @return true if disabled, false if enabled
      */
-    boolean isVideoEnabled();
+    val isVideoEnabled: Boolean
 
     /**
-     * Need be called after {@link #prepareBroadCast(AudioAttributes, VideoAttributes, boolean)} or/and {@link #prepareBroadCast(boolean)}.
+     * Need be called after [.prepareBroadCast] or/and [.prepareBroadCast].
      *
      * @param broadCastUrl of the broadcast like: rtmp://ip:port/application/stream_name
-     *                     <p>
-     *                     RTMP: rtmp://192.168.1.1:1935/fmp4/live_stream_name
-     *                     {@link #startPreview(CameraHelper.Facing)} to resolution seated in
-     *                     {@link #prepareBroadCast(AudioAttributes, VideoAttributes, boolean)}.
-     *                     If you never startPreview this method {@link #startPreview(CameraHelper.Facing)} for you to resolution seated in
-     *                     {@link #prepareBroadCast(AudioAttributes, VideoAttributes, boolean)}.
+     *
+     *
+     * RTMP: rtmp://192.168.1.1:1935/fmp4/live_stream_name
+     * [.startPreview] to resolution seated in
+     * [.prepareBroadCast].
+     * If you never startPreview this method [.startPreview] for you to resolution seated in
+     * [.prepareBroadCast].
      */
-    void startBroadCast(String broadCastUrl);
+    fun startBroadCast(broadCastUrl: String?)
 
     /**
-     * Stop BroadCast started with {@link #startBroadCast(String)}
+     * Stop BroadCast started with [.startBroadCast]
      */
-    void stopBroadCast();
+    fun stopBroadCast()
 
     /**
      * Get broadcast state.
      *
      * @return true if broadcasting, false if not broadcasting.
      */
-    boolean isBroadCasting();
+    val isBroadCasting: Boolean
 
     /**
-     * @return list of {@link VideoSize}
+     * @return list of [VideoSize]
      */
-    List<VideoSize> getSupportedResolutions();
-
+    val supportedResolutions: List<VideoSize?>?
 
     /**
      * Switch camera used. Can be called on preview or while stream, ignored with preview off.
      *
      * @throws UZCameraOpenException If the other camera doesn't support same resolution.
      */
-    void switchCamera() throws UZCameraOpenException;
+    @Throws(UZCameraOpenException::class)
+    fun switchCamera()
 
     /**
      * Start camera preview. Ignored, if stream or preview is started.
      * resolution of preview 640x480
      *
-     * @param cameraFacing front or back camera. Like: {@link com.pedro.encoder.input.video.CameraHelper.Facing#BACK}
-     *                     {@link com.pedro.encoder.input.video.CameraHelper.Facing#FRONT}
+     * @param cameraFacing front or back camera. Like: [com.pedro.encoder.input.video.CameraHelper.Facing.BACK]
+     * [com.pedro.encoder.input.video.CameraHelper.Facing.FRONT]
      */
-    void startPreview(CameraHelper.Facing cameraFacing);
+    fun startPreview(cameraFacing: Facing?)
 
     /**
      * Start camera preview. Ignored, if stream or preview is started.
      *
-     * @param cameraFacing front or back camera. Like: {@link com.pedro.encoder.input.video.CameraHelper.Facing#BACK}
-     *                     {@link com.pedro.encoder.input.video.CameraHelper.Facing#FRONT}
+     * @param cameraFacing front or back camera. Like: [com.pedro.encoder.input.video.CameraHelper.Facing.BACK]
+     * [com.pedro.encoder.input.video.CameraHelper.Facing.FRONT]
      * @param width        of preview in px.
      * @param height       of preview in px.
      */
-    void startPreview(CameraHelper.Facing cameraFacing, int width, int height);
+    fun startPreview(cameraFacing: Facing?, width: Int, height: Int)
 
     /**
      * is Front Camera
      */
-    boolean isFrontCamera();
+    val isFrontCamera: Boolean
 
     /**
      * check is on preview
      *
      * @return true if onpreview, false if not preview.
      */
-    boolean isOnPreview();
+    val isOnPreview: Boolean
 
     /**
      * Stop camera preview. Ignored if streaming or already stopped. You need call it after
      *
      * stopStream to release camera properly if you will close activity.
      */
-    void stopPreview();
+    fun stopPreview()
 
     /**
      * Get record state.
      *
      * @return true if recording, false if not recoding.
      */
-    boolean isRecording();
+    val isRecording: Boolean
 
     /**
      * Start record a MP4 video. Need be called while stream.
@@ -223,34 +210,33 @@ public interface ICameraHelper {
      * @param savePath where file will be saved.
      * @throws IOException If you init it before start stream.
      */
-    void startRecord(String savePath) throws IOException;
+    @Throws(IOException::class)
+    fun startRecord(savePath: String?)
 
     /**
      * Stop record MP4 video started with @startRecord. If you don't call it file will be unreadable.
      */
-    void stopRecord();
+    fun stopRecord()
 
     /**
      * take a photo
      *
-     * @param callback {@link UZTakePhotoCallback}
+     * @param callback [UZTakePhotoCallback]
      */
-    void takePhoto(UZTakePhotoCallback callback);
+    fun takePhoto(callback: UZTakePhotoCallback?)
 
     /**
      * Set video bitrate of H264 in kb while stream.
      *
      * @param bitrate H264 in kb.
      */
-    void setVideoBitrateOnFly(int bitrate);
+    fun setVideoBitrateOnFly(bitrate: Int)
 
     /**
      * @return bitrate in kps
      */
-    int getBitrate();
-
-
-    boolean reTry(long delay, String reason);
+    val bitrate: Int
+    fun reTry(delay: Long, reason: String?): Boolean
 
     /**
      * Check support Flashlight
@@ -258,47 +244,44 @@ public interface ICameraHelper {
      *
      * @return true if support, false if not support.
      */
-    boolean isLanternSupported();
+    val isLanternSupported: Boolean
 
     /**
-     * required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
+     * required: <uses-permission android:name="android.permission.FLASHLIGHT"></uses-permission>
      */
-    void enableLantern() throws Exception;
+    @Throws(Exception::class)
+    fun enableLantern()
 
     /**
-     * required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
+     * required: <uses-permission android:name="android.permission.FLASHLIGHT"></uses-permission>
      */
-    void disableLantern();
-
-    boolean isLanternEnabled();
+    fun disableLantern()
+    val isLanternEnabled: Boolean
 
     /**
      * Return max zoom level
      *
      * @return max zoom level
      */
-    float getMaxZoom();
-
+    val maxZoom: Float
     /**
      * Return current zoom level
      *
      * @return current zoom level
      */
-    float getZoom();
-
     /**
      * Set zoomIn or zoomOut to camera.
      * Use this method if you use a zoom slider.
      *
      * @param level Expected to be >= 1 and <= max zoom level
-     * @see Camera2Base#getMaxZoom()
+     * @see Camera2Base.getMaxZoom
      */
-    void setZoom(float level);
+    var zoom: Float
 
     /**
      * Set zoomIn or zoomOut to camera.
      *
      * @param event motion event. Expected to get event.getPointerCount() > 1
      */
-    void setZoom(MotionEvent event);
+    fun setZoom(event: MotionEvent?)
 }
