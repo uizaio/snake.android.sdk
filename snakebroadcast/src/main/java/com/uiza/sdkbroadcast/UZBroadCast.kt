@@ -7,7 +7,7 @@ class UZBroadCast {
     companion object {
         @get:DrawableRes
         @DrawableRes
-        var iconNotify = 0
+        var iconNotify = R.mipmap.ic_launcher_round
 
         @JvmOverloads
         fun init(@DrawableRes iconNotify: Int = R.drawable.ic_start_live) {

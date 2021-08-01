@@ -97,6 +97,7 @@ public class UZDisplayService extends Service {
             //dau tien nhan live bang camera
             //sau do tat live camera
             //roi tiep tuc live bang display => se nhay vao case error
+            //co the no lien quan den attr app:runInBackground="true"
             try {
                 displayBroadCast.getRtmpDisplay().startStream(mBroadCastUrl);
             } catch (Exception e) {
