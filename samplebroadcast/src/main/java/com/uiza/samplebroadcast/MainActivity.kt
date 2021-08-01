@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -35,26 +34,18 @@ class MainActivity : AppCompatActivity() {
         )
 
         btnStart.setOnClickListener {
-            val intent = Intent(this@MainActivity, UZBroadCastActivity::class.java)
+            val intent = Intent(this, UZBroadCastActivity::class.java)
             intent.putExtra(
                 SampleLiveApplication.EXTRA_STREAM_ENDPOINT,
-                String.format(
-                    "%s/%s",
-                    edtServer.text.toString(),
-                    edtStreamKey.text.toString()
-                )
+                String.format("%s/%s", edtServer.text.toString(), edtStreamKey.text.toString())
             )
             startActivity(intent)
         }
-        btnStartDisplay.setOnClickListener { v: View? ->
-            val intent = Intent(this@MainActivity, UZDisplayActivity::class.java)
+        btnStartDisplay.setOnClickListener {
+            val intent = Intent(this, UZDisplayActivity::class.java)
             intent.putExtra(
                 SampleLiveApplication.EXTRA_STREAM_ENDPOINT,
-                String.format(
-                    "%s/%s",
-                    edtServer.text.toString(),
-                    edtStreamKey.text.toString()
-                )
+                String.format("%s/%s", edtServer.text.toString(), edtStreamKey.text.toString())
             )
             startActivity(intent)
         }
@@ -68,7 +59,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_settings) {
-            startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
     }
