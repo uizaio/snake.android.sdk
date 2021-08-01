@@ -1,4 +1,4 @@
-package com.uiza.samplebroadcast;
+package com.uiza.activity;
 
 import android.Manifest;
 import android.content.SharedPreferences;
@@ -24,6 +24,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.preference.PreferenceManager;
 
+import com.uiza.common.Constant;
 import com.uiza.sdkbroadcast.enums.FilterRender;
 import com.uiza.sdkbroadcast.enums.RecordStatus;
 import com.uiza.sdkbroadcast.enums.Translate;

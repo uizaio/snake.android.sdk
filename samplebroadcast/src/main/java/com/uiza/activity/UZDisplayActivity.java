@@ -1,4 +1,4 @@
-package com.uiza.samplebroadcast;
+package com.uiza.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import com.uiza.common.Constant;
 import com.uiza.sdkbroadcast.enums.Translate;
 import com.uiza.sdkbroadcast.interfaces.UZBroadCastListener;
 import com.uiza.sdkbroadcast.profile.AudioAttributes;

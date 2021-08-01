@@ -8,7 +8,7 @@ import android.widget.Checkable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatImageButton;
 
-import com.uiza.samplebroadcast.R;
+import com.uiza.activity.R;
 
 public class UZMediaButton extends AppCompatImageButton implements Checkable {
 

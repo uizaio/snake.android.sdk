@@ -1,4 +1,4 @@
-package com.uiza.samplebroadcast
+package com.uiza.common
 
 class Constant {
     companion object {

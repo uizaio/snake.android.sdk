@@ -1,6 +1,7 @@
-package com.uiza.samplebroadcast
+package com.uiza.app
 
 import androidx.multidex.MultiDexApplication
+import com.uiza.activity.R
 import com.uiza.sdkbroadcast.UZBroadCast
 
 class SampleLiveApplication : MultiDexApplication() {
