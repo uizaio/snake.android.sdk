@@ -1,62 +1,76 @@
-package com.uiza.samplebroadcast;
+package com.uiza.samplebroadcast
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.content.Intent
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatEditText;
-import androidx.appcompat.widget.AppCompatTextView;
+class MainActivity : AppCompatActivity() {
 
-import java.util.Locale;
-
-public class MainActivity extends AppCompatActivity {
-
-    AppCompatEditText mServerEdt, mStreamKeyEdt;
-
-    @SuppressLint("SetTextI18n")
-    @Override
-    protected void onCreate(@Nullable Bundle savedState) {
-        super.onCreate(savedState);
-        setContentView(R.layout.activity_main);
-        mServerEdt = findViewById(R.id.edt_server);
-        mStreamKeyEdt = findViewById(R.id.edt_stream_key);
-        mServerEdt.setText("rtmps://live-api-s.facebook.com:443/rtmp/");
-        mStreamKeyEdt.setText("FB-4111254245662108-0-Abw4b9YFhJT8AgpF");
-        findViewById(R.id.btn_start).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, UZBroadCastActivity.class);
-            intent.putExtra(SampleLiveApplication.EXTRA_STREAM_ENDPOINT, String.format("%s/%s", mServerEdt.getText().toString(), mStreamKeyEdt.getText().toString()));
-            startActivity(intent);
-        });
-        findViewById(R.id.btn_start_display).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, UZDisplayActivity.class);
-            intent.putExtra(SampleLiveApplication.EXTRA_STREAM_ENDPOINT, String.format("%s/%s", mServerEdt.getText().toString(), mStreamKeyEdt.getText().toString()));
-            startActivity(intent);
-        });
-        ((AppCompatTextView)findViewById(R.id.txt_info)).setText(String.format(Locale.getDefault(), "%s - %s", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) );
+    companion object {
+        const val SERVER = "rtmps://live-api-s.facebook.com:443/rtmp/"
+        const val STREAM_KEY = "FB-4111254245662108-0-Abw4b9YFhJT8AgpF"
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return true;
+    override fun onCreate(savedState: Bundle?) {
+        super.onCreate(savedState)
+        setContentView(R.layout.activity_main)
+
+        setupViews()
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_settings) {
-            launchActivity(SettingsActivity.class);
+    private fun setupViews() {
+        edtServer.setText(SERVER)
+        edtStreamKey.setText(STREAM_KEY)
+
+        txtInfo.text = String.format(
+            Locale.getDefault(),
+            "%s - %s",
+            BuildConfig.VERSION_NAME,
+            BuildConfig.VERSION_CODE
+        )
+
+        btnStart.setOnClickListener {
+            val intent = Intent(this@MainActivity, UZBroadCastActivity::class.java)
+            intent.putExtra(
+                SampleLiveApplication.EXTRA_STREAM_ENDPOINT,
+                String.format(
+                    "%s/%s",
+                    edtServer.text.toString(),
+                    edtStreamKey.text.toString()
+                )
+            )
+            startActivity(intent)
         }
-        return super.onOptionsItemSelected(item);
+        btnStartDisplay.setOnClickListener { v: View? ->
+            val intent = Intent(this@MainActivity, UZDisplayActivity::class.java)
+            intent.putExtra(
+                SampleLiveApplication.EXTRA_STREAM_ENDPOINT,
+                String.format(
+                    "%s/%s",
+                    edtServer.text.toString(),
+                    edtStreamKey.text.toString()
+                )
+            )
+            startActivity(intent)
+        }
     }
 
-    private <T extends Activity> void launchActivity(Class<T> tClass) {
-        startActivity(new Intent(MainActivity.this, tClass));
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_main, menu)
+        return true
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.action_settings) {
+            startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
 }

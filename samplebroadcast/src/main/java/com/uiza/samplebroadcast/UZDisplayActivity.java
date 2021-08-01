@@ -34,7 +34,7 @@ public class UZDisplayActivity extends AppCompatActivity implements View.OnClick
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
-        startBtn = findViewById(R.id.btn_start);
+        startBtn = findViewById(R.id.btnStart);
         if (getSupportActionBar() != null)
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -107,7 +107,7 @@ public class UZDisplayActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_start) {
+        if (v.getId() == R.id.btnStart) {
             if (!broadCast.isBroadCasting()) {
                 if (broadCast.prepareBroadCast()) {
                     broadCast.startBroadCast(broadCastUrl);
