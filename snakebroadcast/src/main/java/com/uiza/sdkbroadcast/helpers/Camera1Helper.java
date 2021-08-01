@@ -37,26 +37,16 @@ import java.util.List;
  * API requirements:
  * OpenGlView: API 18+.
  * <p>
- * Created by namnd on 10/01/20.
+ * Created by loitp on 01/08/2021.
  */
 public class Camera1Helper implements ICameraHelper {
     private final String tag = getClass().getSimpleName();
-    private RtmpCamera1 rtmpCamera1;
-
+    private final RtmpCamera1 rtmpCamera1;
     private UZCameraChangeListener uzCameraChangeListener;
-
     private UZRecordListener uzRecordListener;
     private OpenGlView openGlView;
-
-    /**
-     * VideoAttributes
-     */
     private VideoAttributes videoAttributes;
-    /**
-     * AudioAttributes
-     */
     private AudioAttributes audioAttributes;
-
     private boolean isLandscape = false;
 
     public Camera1Helper(@NonNull OpenGlView openGlView, ConnectCheckerRtmp connectCheckerRtmp) {

@@ -29,14 +29,8 @@ public interface ICameraHelper {
      */
     void setConnectReTries(int reTries);
 
-    /**
-     * @param uzCameraChangeListener
-     */
     void setUZCameraChangeListener(UZCameraChangeListener uzCameraChangeListener);
 
-    /**
-     * @param uzRecordListener
-     */
     void setUZRecordListener(UZRecordListener uzRecordListener);
 
     void replaceView(OpenGlView openGlView);
@@ -58,7 +52,7 @@ public interface ICameraHelper {
 
     /**
      * @param filterPosition position of filter
-     * @param filterReader filter to set. You can modify parameters to filter after set it to stream.
+     * @param filterReader   filter to set. You can modify parameters to filter after set it to stream.
      */
     void setFilter(int filterPosition, BaseFilterRender filterReader);
 
@@ -212,7 +206,7 @@ public interface ICameraHelper {
     /**
      * Stop camera preview. Ignored if streaming or already stopped. You need call it after
      *
-     * @stopStream to release camera properly if you will close activity.
+     * stopStream to release camera properly if you will close activity.
      */
     void stopPreview();
 
@@ -238,6 +232,7 @@ public interface ICameraHelper {
 
     /**
      * take a photo
+     *
      * @param callback {@link UZTakePhotoCallback}
      */
     void takePhoto(UZTakePhotoCallback callback);
@@ -250,7 +245,6 @@ public interface ICameraHelper {
     void setVideoBitrateOnFly(int bitrate);
 
     /**
-     *
      * @return bitrate in kps
      */
     int getBitrate();
@@ -267,12 +261,12 @@ public interface ICameraHelper {
     boolean isLanternSupported();
 
     /**
-     * @required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
+     * required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
      */
     void enableLantern() throws Exception;
 
     /**
-     * @required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
+     * required: <uses-permission android:name="android.permission.FLASHLIGHT"/>
      */
     void disableLantern();
 

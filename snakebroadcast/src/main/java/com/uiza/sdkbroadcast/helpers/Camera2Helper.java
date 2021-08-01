@@ -36,29 +36,17 @@ import java.util.List;
  * API requirements:
  * API 21+.
  * <p>
- * Created by namnd on 10/01/20.
+ * Created by loitp on 31/08/2021.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Helper implements ICameraHelper {
-    private final String tag = getClass().getSimpleName();
-
-    private RtmpCamera2 rtmpCamera2;
-
+    private final String logTag = getClass().getSimpleName();
+    private final RtmpCamera2 rtmpCamera2;
     private UZCameraChangeListener uzCameraChangeListener;
-
     private UZRecordListener uzRecordListener;
-
     private OpenGlView openGlView;
-
-    /**
-     * VideoAttributes
-     */
     private VideoAttributes videoAttributes;
-    /**
-     * AudioAttributes
-     */
     private AudioAttributes audioAttributes;
-
     private boolean isLandscape = false;
 
     public Camera2Helper(@NonNull OpenGlView openGlView, ConnectCheckerRtmp connectCheckerRtmp) {
@@ -181,7 +169,7 @@ public class Camera2Helper implements ICameraHelper {
     @Override
     public boolean prepareBroadCast(boolean isLandscape) {
         if (videoAttributes == null) {
-            Log.e(tag, "Please set videoAttributes");
+            Log.e(logTag, "Please set videoAttributes");
             return false;
         }
         return prepareBroadCast(audioAttributes, videoAttributes, isLandscape);
