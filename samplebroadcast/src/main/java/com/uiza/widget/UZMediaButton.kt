@@ -1,67 +1,67 @@
-package com.uiza.widget;
+package com.uiza.widget
 
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.util.AttributeSet;
-import android.widget.Checkable;
+import android.content.Context
+import android.util.AttributeSet
+import android.widget.Checkable
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.AppCompatImageButton
+import com.uiza.activity.R
 
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatImageButton;
+class UZMediaButton : AppCompatImageButton, Checkable {
 
-import com.uiza.activity.R;
+    private var activeDrawableId = -1
+    private var inActiveDrawableId = -1
+    private var checked = false
 
-public class UZMediaButton extends AppCompatImageButton implements Checkable {
-
-    private int activeDrawableId = -1, inActiveDrawableId = -1;
-    private boolean checked = false;
-
-
-    public UZMediaButton(Context context) {
-        this(context, null);
+    @JvmOverloads
+    constructor(context: Context, attrs: AttributeSet? = null) : super(context, attrs) {
+        initView(attrs, 0)
     }
 
-    public UZMediaButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        initView(attrs, 0);
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context, attrs, defStyleAttr
+    ) {
+        initView(attrs, defStyleAttr)
     }
 
-    public UZMediaButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        initView(attrs, defStyleAttr);
-    }
-
-    private void initView(AttributeSet attrs, int defStyleAttr) {
+    private fun initView(attrs: AttributeSet?, defStyleAttr: Int) {
         if (attrs != null) {
-            TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.UZMediaButton, defStyleAttr, 0);
-            activeDrawableId = a.getResourceId(R.styleable.UZMediaButton_srcActive, -1);
-            inActiveDrawableId = a.getResourceId(R.styleable.UZMediaButton_srcInactive, -1);
+            val a = context.theme.obtainStyledAttributes(
+                attrs,
+                R.styleable.UZMediaButton,
+                defStyleAttr,
+                0
+            )
+            activeDrawableId = a.getResourceId(R.styleable.UZMediaButton_srcActive, -1)
+            inActiveDrawableId = a.getResourceId(R.styleable.UZMediaButton_srcInactive, -1)
         } else {
-            activeDrawableId = -1;
-            inActiveDrawableId = -1;
+            activeDrawableId = -1
+            inActiveDrawableId = -1
         }
-        updateDrawable();
+        updateDrawable()
     }
 
-    private void updateDrawable() {
-        setImageDrawable(AppCompatResources.getDrawable(getContext(), checked ? activeDrawableId : inActiveDrawableId));
+    private fun updateDrawable() {
+        if (checked) {
+            setImageDrawable(AppCompatResources.getDrawable(context, activeDrawableId))
+        } else {
+            setImageDrawable(AppCompatResources.getDrawable(context, inActiveDrawableId))
+        }
     }
 
-    @Override
-    public boolean isChecked() {
-        return checked;
+    override fun isChecked(): Boolean {
+        return checked
     }
 
-    @Override
-    public void setChecked(boolean checked) {
+    override fun setChecked(checked: Boolean) {
         if (this.checked != checked) {
-            this.checked = checked;
-            updateDrawable();
-            refreshDrawableState();
+            this.checked = checked
+            updateDrawable()
+            refreshDrawableState()
         }
     }
 
-    @Override
-    public void toggle() {
-        checked = !checked;
+    override fun toggle() {
+        checked = !checked
     }
 }
