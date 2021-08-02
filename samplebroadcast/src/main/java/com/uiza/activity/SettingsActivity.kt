@@ -1,47 +1,44 @@
-package com.uiza.activity;
+package com.uiza.activity
 
-import android.os.Bundle;
-import android.view.MenuItem;
+import android.os.Bundle
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
+class SettingsActivity : AppCompatActivity() {
+    override fun onCreate(savedState: Bundle?) {
+        super.onCreate(savedState)
+        setContentView(R.layout.activity_settings)
 
-import java.util.Locale;
-
-public class SettingsActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedState) {
-        super.onCreate(savedState);
-        setContentView(R.layout.activity_settings);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.settings, new SettingsFragment())
-                .commit();
-        if (getSupportActionBar() != null)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.layoutContainer, SettingsFragment())
+            .commit()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
-            finish();
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat {
+    class SettingsFragment : PreferenceFragmentCompat() {
+        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+            setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-        @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey);
-            Preference verPref = findPreference("version_key");
+            val verPref = findPreference<Preference>("version_key")
             if (verPref != null) {
-                verPref.setDefaultValue(String.valueOf(BuildConfig.VERSION_CODE));
-                verPref.setSummary(String.format(Locale.getDefault(), "%s - %d", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
+                verPref.setDefaultValue(BuildConfig.VERSION_CODE.toString())
+                verPref.summary = String.format(
+                    Locale.getDefault(),
+                    "%s - %d",
+                    BuildConfig.VERSION_NAME,
+                    BuildConfig.VERSION_CODE
+                )
             }
         }
     }
