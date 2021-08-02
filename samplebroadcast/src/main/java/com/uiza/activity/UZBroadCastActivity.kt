@@ -1,479 +1,587 @@
-package com.uiza.activity;
+package com.uiza.activity
 
-import android.Manifest;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.PointF;
-import android.os.Bundle;
-import android.os.Environment;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.PopupMenu;
-import android.widget.Toast;
+import android.Manifest
+import android.content.DialogInterface
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.PointF
+import android.os.Bundle
+import android.os.Environment
+import android.text.TextUtils
+import android.util.Log
+import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
+import android.widget.PopupMenu
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.preference.PreferenceManager
+import com.uiza.common.Constant
+import com.uiza.sdkbroadcast.enums.FilterRender
+import com.uiza.sdkbroadcast.enums.RecordStatus
+import com.uiza.sdkbroadcast.enums.Translate
+import com.uiza.sdkbroadcast.interfaces.UZBroadCastListener
+import com.uiza.sdkbroadcast.interfaces.UZCameraChangeListener
+import com.uiza.sdkbroadcast.interfaces.UZCameraOpenException
+import com.uiza.sdkbroadcast.interfaces.UZRecordListener
+import com.uiza.sdkbroadcast.profile.AudioAttributes.Companion.create
+import com.uiza.sdkbroadcast.profile.VideoAttributes
+import com.uiza.sdkbroadcast.profile.VideoAttributes.Companion.FHD_1080p
+import com.uiza.sdkbroadcast.profile.VideoAttributes.Companion.HD_720p
+import com.uiza.sdkbroadcast.profile.VideoAttributes.Companion.SD_360p
+import com.uiza.sdkbroadcast.profile.VideoAttributes.Companion.SD_480p
+import kotlinx.android.synthetic.main.activity_broad_cast.*
+import java.io.File
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.res.ResourcesCompat;
-import androidx.preference.PreferenceManager;
+class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener, View.OnClickListener,
+    UZRecordListener, UZCameraChangeListener {
 
-import com.uiza.common.Constant;
-import com.uiza.sdkbroadcast.enums.FilterRender;
-import com.uiza.sdkbroadcast.enums.RecordStatus;
-import com.uiza.sdkbroadcast.enums.Translate;
-import com.uiza.sdkbroadcast.interfaces.UZBroadCastListener;
-import com.uiza.sdkbroadcast.interfaces.UZCameraChangeListener;
-import com.uiza.sdkbroadcast.interfaces.UZCameraOpenException;
-import com.uiza.sdkbroadcast.interfaces.UZRecordListener;
-import com.uiza.sdkbroadcast.profile.AudioAttributes;
-import com.uiza.sdkbroadcast.profile.VideoAttributes;
-import com.uiza.sdkbroadcast.view.UZBroadCastView;
-import com.uiza.widget.UZMediaButton;
+    companion object {
+        private val logTag = UZBroadCastActivity::class.java.simpleName
+        private const val RECORD_FOLDER = "uzbroadcast"
+        private const val REQUEST_CODE = 1001
+    }
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
+    private var popupMenu: PopupMenu? = null
+    private var preferences: SharedPreferences? = null
+    private var broadCastUrl: String? = null
+    private var currentDateAndTime = ""
+    private var folder: File? = null
 
-public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCastListener,
-        View.OnClickListener, UZRecordListener, UZCameraChangeListener {
+    override fun onCreate(savedState: Bundle?) {
+        super.onCreate(savedState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED)
+        setContentView(R.layout.activity_broad_cast)
+        preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        setupViews()
+    }
 
-    private static final String logTag = UZBroadCastActivity.class.getSimpleName();
-    private static final String RECORD_FOLDER = "uzbroadcast";
-    PopupMenu popupMenu;
-    SharedPreferences preferences;
-    private UZMediaButton startButton, recordButton, audioButton, menuButton;
-    private String broadCastUrl;
-    private String currentDateAndTime = "";
-    private File folder;
-    private UZBroadCastView broadCastView;
+    private fun setupViews() {
+        btnBack.setOnClickListener(this)
+        uzBroadCastView.setUZBroadcastListener(this)
+        btnStartStop.setOnClickListener(this)
+        btnStartStop.isEnabled = false
+        btnRecord.setOnClickListener(this)
+        btnAudio.setOnClickListener(this)
+        btnMenu.setOnClickListener(this)
+        btnSwitchCamera.setOnClickListener(this)
 
-    @Override
-    protected void onCreate(Bundle savedState) {
-        super.onCreate(savedState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-        setContentView(R.layout.activity_broad_cast);
-        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        findViewById(R.id.btnBack).setOnClickListener(this);
-        broadCastView = findViewById(R.id.uzBroadCastView);
-        broadCastView.setUZBroadcastListener(this);
-        startButton = findViewById(R.id.btnStartStop);
-        startButton.setOnClickListener(this);
-        startButton.setEnabled(false);
-        recordButton = findViewById(R.id.btnRecord);
-        audioButton = findViewById(R.id.btnAudio);
-        menuButton = findViewById(R.id.btnMenu);
-        recordButton.setOnClickListener(this);
-        audioButton.setOnClickListener(this);
-        menuButton.setOnClickListener(this);
-        AppCompatImageButton switchCamera = findViewById(R.id.btnSwitchCamera);
-        switchCamera.setOnClickListener(this);
-        File movieFolder = getExternalFilesDir(Environment.DIRECTORY_MOVIES);
-        if (movieFolder != null)
-            folder = new File(movieFolder.getAbsolutePath()
-                    + RECORD_FOLDER);
-        broadCastUrl = getIntent().getStringExtra(Constant.EXTRA_STREAM_ENDPOINT);
+        val movieFolder = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        movieFolder?.let { file ->
+            folder = File(file.absolutePath + RECORD_FOLDER)
+        }
+
+        broadCastUrl = intent.getStringExtra(Constant.EXTRA_STREAM_ENDPOINT)
         if (TextUtils.isEmpty(broadCastUrl)) {
-            finish();
+            showToast("broadCastUrl cannot be null or empty")
+            onBackPressed()
         }
         try {
-            int profile = Integer.parseInt(Objects.requireNonNull(preferences.getString(Constant.PREF_CAMERA_PROFILE, Constant.DEFAULT_CAMERA_PROFILE)));
-            int maxBitrate = Integer.parseInt(Objects.requireNonNull(preferences.getString(Constant.PREF_VIDEO_BITRATE, Constant.DEFAULT_MAX_BITRATE)));
-            int fps = Integer.parseInt(Objects.requireNonNull(preferences.getString(Constant.PREF_FPS, Constant.DEFAULT_FPS)));
-            int frameInterval = Integer.parseInt(Objects.requireNonNull(preferences.getString(Constant.PREF_FRAME_INTERVAL, Constant.DEFAULT_FRAME_INTERVAL)));
-            int audioBitrate = Integer.parseInt(Objects.requireNonNull(preferences.getString(Constant.PREF_AUDIO_BITRATE, Constant.DEFAULT_AUDIO_BITRATE)));
-            int audioSampleRate = Integer.parseInt(Objects.requireNonNull(preferences.getString(Constant.PREF_SAMPLE_RATE, Constant.DEFAULT_SAMPLE_RATE)));
-            boolean stereo = preferences.getBoolean(Constant.PREF_AUDIO_STEREO, Constant.DEFAULT_AUDIO_STEREO);
-            VideoAttributes videoAttributes;
-            if (profile == 1080)
-                videoAttributes = VideoAttributes.FHD_1080p(fps, maxBitrate, frameInterval);
-            else if (profile == 480)
-                videoAttributes = VideoAttributes.SD_480p(fps, maxBitrate, frameInterval);
-            else if (profile == 360)
-                videoAttributes = VideoAttributes.SD_360p(fps, maxBitrate, frameInterval);
-            else
-                videoAttributes = VideoAttributes.HD_720p(fps, maxBitrate, frameInterval);
-            AudioAttributes audioAttributes = AudioAttributes.create(audioBitrate, audioSampleRate, stereo);
-            // set audio and video profile
-            broadCastView.setVideoAttributes(videoAttributes);
-            broadCastView.setAudioAttributes(audioAttributes);
-            broadCastView.setBackgroundAllowedDuration(10000);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+            val profile =
+                preferences?.getString(
+                    Constant.PREF_CAMERA_PROFILE,
+                    Constant.DEFAULT_CAMERA_PROFILE
+                )
+                    ?.toIntOrNull()
+
+            val maxBitrate =
+                preferences?.getString(Constant.PREF_VIDEO_BITRATE, Constant.DEFAULT_MAX_BITRATE)
+                    ?.toIntOrNull()
+
+            val fps = preferences?.getString(Constant.PREF_FPS, Constant.DEFAULT_FPS)?.toIntOrNull()
+
+            val frameInterval =
+                preferences?.getString(
+                    Constant.PREF_FRAME_INTERVAL,
+                    Constant.DEFAULT_FRAME_INTERVAL
+                )
+                    ?.toIntOrNull()
+
+            val audioBitrate =
+                preferences?.getString(Constant.PREF_AUDIO_BITRATE, Constant.DEFAULT_AUDIO_BITRATE)
+                    ?.toIntOrNull()
+
+            val audioSampleRate =
+                preferences?.getString(Constant.PREF_SAMPLE_RATE, Constant.DEFAULT_SAMPLE_RATE)
+                    ?.toIntOrNull()
+
+            val stereo =
+                preferences?.getBoolean(Constant.PREF_AUDIO_STEREO, Constant.DEFAULT_AUDIO_STEREO)
+
+            if (profile == null || maxBitrate == null || fps == null || frameInterval == null
+                || audioBitrate == null || audioSampleRate == null || stereo == null
+            ) {
+                showToast("Invalid config")
+                return
+            }
+
+            val videoAttributes: VideoAttributes = when (profile) {
+                1080 -> FHD_1080p(
+                    frameRate = fps,
+                    bitRate = maxBitrate,
+                    frameInterval = frameInterval
+                )
+                480 -> SD_480p(
+                    frameRate = fps,
+                    bitRate = maxBitrate,
+                    frameInterval = frameInterval
+                )
+                360 -> SD_360p(
+                    frameRate = fps,
+                    bitRate = maxBitrate,
+                    frameInterval = frameInterval
+                )
+                else -> HD_720p(
+                    frameRate = fps,
+                    bitRate = maxBitrate,
+                    frameInterval = frameInterval
+                )
+            }
+            val audioAttributes = create(
+                bitRate = audioBitrate,
+                sampleRate = audioSampleRate,
+                stereo = stereo
+            )
+            uzBroadCastView.setVideoAttributes(videoAttributes)
+            uzBroadCastView.setAudioAttributes(audioAttributes)
+            uzBroadCastView.setBackgroundAllowedDuration(10000)
+        } catch (e: NullPointerException) {
+            e.printStackTrace()
         }
     }
 
-    @Override
-    protected void onResume() {
-        if (broadCastView != null) {
-            broadCastView.onResume();
-            startButton.setChecked(broadCastView.isBroadCasting());
-        }
-        super.onResume();
+    override fun onResume() {
+        uzBroadCastView.onResume()
+        btnStartStop.isChecked = uzBroadCastView.isBroadCasting
+        super.onResume()
     }
 
-    @Override
-    public void onBackPressed() {
-        if (broadCastView != null && broadCastView.isBroadCasting()) {
-            showExitDialog();
+    override fun onBackPressed() {
+        if (uzBroadCastView.isBroadCasting) {
+            showExitDialog()
         } else {
-            super.onBackPressed();
+            super.onBackPressed()
         }
     }
 
-    private void showExitDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Stop");
-        builder.setMessage("Do you want to stop?");
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            super.onBackPressed();
-            broadCastView.stopBroadCast();
-            dialog.dismiss();
-            finish();
-        });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+    private fun showExitDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Stop")
+        builder.setMessage("Do you want to stop?")
+        builder.setPositiveButton("OK") { dialog: DialogInterface, _: Int ->
+            super.onBackPressed()
+            uzBroadCastView.stopBroadCast()
+            dialog.dismiss()
+            onBackPressed()
+        }
+        builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+        builder.show()
     }
 
-    private boolean onMenuItemSelected(MenuItem item) {
-        //Stop listener for image, text and gif stream objects.
+    private fun onMenuItemSelected(item: MenuItem): Boolean {
+//        Stop listener for image, text and gif stream objects.
 //        openGlView.setFilter(null);
-        switch (item.getItemId()) {
-            case R.id.e_d_fxaa:
-                broadCastView.enableAA(!broadCastView.isAAEnabled());
-                Toast.makeText(this,
-                        "FXAA " + (broadCastView.isAAEnabled() ? "enabled" : "disabled"),
-                        Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.no_filter:
-                broadCastView.setFilter(FilterRender.None);
-                return true;
-            case R.id.analog_tv:
-                broadCastView.setFilter(FilterRender.AnalogTV);
-                return true;
-            case R.id.android_view:
-                FilterRender androidRender = FilterRender.AndroidView;
-                androidRender.setView(findViewById(R.id.btnSwitchCamera));
-                broadCastView.setFilter(androidRender);
-                return true;
-            case R.id.basic_deformation:
-                broadCastView.setFilter(FilterRender.BasicDeformation);
-                return true;
-            case R.id.beauty:
-                broadCastView.setFilter(FilterRender.Beauty);
-                return true;
-            case R.id.black:
-                broadCastView.setFilter(FilterRender.Black);
-                return true;
-            case R.id.blur:
-                broadCastView.setFilter(FilterRender.Blur);
-                return true;
-            case R.id.brightness:
-                broadCastView.setFilter(FilterRender.Brightness);
-                return true;
-            case R.id.cartoon:
-                broadCastView.setFilter(FilterRender.Cartoon);
-                return true;
-            case R.id.circle:
-                broadCastView.setFilter(FilterRender.Circle);
-                return true;
-            case R.id.color:
-                broadCastView.setFilter(FilterRender.Color);
-                return true;
-            case R.id.contrast:
-                broadCastView.setFilter(FilterRender.Contrast);
-                return true;
-            case R.id.duotone:
-                broadCastView.setFilter(FilterRender.Duotone);
-                return true;
-            case R.id.early_bird:
-                broadCastView.setFilter(FilterRender.EarlyBird);
-                return true;
-            case R.id.edge_detection:
-                broadCastView.setFilter(FilterRender.EdgeDetection);
-                return true;
-            case R.id.exposure:
-                broadCastView.setFilter(FilterRender.Exposure);
-                return true;
-            case R.id.fire:
-                broadCastView.setFilter(FilterRender.Fire);
-                return true;
-            case R.id.gamma:
-                broadCastView.setFilter(FilterRender.Gamma);
-                return true;
-            case R.id.glitch:
-                broadCastView.setFilter(FilterRender.Glitch);
-                return true;
-            case R.id.grey_scale:
-                broadCastView.setFilter(FilterRender.GreyScale);
-                return true;
-            case R.id.halftone_lines:
-                broadCastView.setFilter(FilterRender.HalftoneLines);
-                return true;
-            case R.id.image_70s:
-                broadCastView.setFilter(FilterRender.Image70s);
-                return true;
-            case R.id.lamoish:
-                broadCastView.setFilter(FilterRender.Lamoish);
-                return true;
-            case R.id.money:
-                broadCastView.setFilter(FilterRender.Money);
-                return true;
-            case R.id.negative:
-                broadCastView.setFilter(FilterRender.Negative);
-                return true;
-            case R.id.pixelated:
-                broadCastView.setFilter(FilterRender.Pixelated);
-                return true;
-            case R.id.polygonization:
-                broadCastView.setFilter(FilterRender.Polygonization);
-                return true;
-            case R.id.rainbow:
-                broadCastView.setFilter(FilterRender.Rainbow);
-                return true;
-            case R.id.rgb_saturate:
-                FilterRender rgbSaturation = FilterRender.RGBSaturation;
-                broadCastView.setFilter(rgbSaturation);
+        return when (item.itemId) {
+            R.id.e_d_fxaa -> {
+                uzBroadCastView.enableAA(enable = !uzBroadCastView.isAAEnabled())
+                showToast("FXAA " + if (uzBroadCastView.isAAEnabled()) "enabled" else "disabled")
+                true
+            }
+            R.id.no_filter -> {
+                uzBroadCastView.setFilter(FilterRender.None)
+                true
+            }
+            R.id.analog_tv -> {
+                uzBroadCastView.setFilter(FilterRender.AnalogTV)
+                true
+            }
+            R.id.android_view -> {
+                val androidRender = FilterRender.AndroidView
+                androidRender.setView(btnSwitchCamera)
+                uzBroadCastView.setFilter(androidRender)
+                true
+            }
+            R.id.basic_deformation -> {
+                uzBroadCastView.setFilter(FilterRender.BasicDeformation)
+                true
+            }
+            R.id.beauty -> {
+                uzBroadCastView.setFilter(FilterRender.Beauty)
+                true
+            }
+            R.id.black -> {
+                uzBroadCastView.setFilter(FilterRender.Black)
+                true
+            }
+            R.id.blur -> {
+                uzBroadCastView.setFilter(FilterRender.Blur)
+                true
+            }
+            R.id.brightness -> {
+                uzBroadCastView.setFilter(FilterRender.Brightness)
+                true
+            }
+            R.id.cartoon -> {
+                uzBroadCastView.setFilter(FilterRender.Cartoon)
+                true
+            }
+            R.id.circle -> {
+                uzBroadCastView.setFilter(FilterRender.Circle)
+                true
+            }
+            R.id.color -> {
+                uzBroadCastView.setFilter(FilterRender.Color)
+                true
+            }
+            R.id.contrast -> {
+                uzBroadCastView.setFilter(FilterRender.Contrast)
+                true
+            }
+            R.id.duotone -> {
+                uzBroadCastView.setFilter(FilterRender.Duotone)
+                true
+            }
+            R.id.early_bird -> {
+                uzBroadCastView.setFilter(FilterRender.EarlyBird)
+                true
+            }
+            R.id.edge_detection -> {
+                uzBroadCastView.setFilter(FilterRender.EdgeDetection)
+                true
+            }
+            R.id.exposure -> {
+                uzBroadCastView.setFilter(FilterRender.Exposure)
+                true
+            }
+            R.id.fire -> {
+                uzBroadCastView.setFilter(FilterRender.Fire)
+                true
+            }
+            R.id.gamma -> {
+                uzBroadCastView.setFilter(FilterRender.Gamma)
+                true
+            }
+            R.id.glitch -> {
+                uzBroadCastView.setFilter(FilterRender.Glitch)
+                true
+            }
+            R.id.grey_scale -> {
+                uzBroadCastView.setFilter(FilterRender.GreyScale)
+                true
+            }
+            R.id.halftone_lines -> {
+                uzBroadCastView.setFilter(FilterRender.HalftoneLines)
+                true
+            }
+            R.id.image_70s -> {
+                uzBroadCastView.setFilter(FilterRender.Image70s)
+                true
+            }
+            R.id.lamoish -> {
+                uzBroadCastView.setFilter(FilterRender.Lamoish)
+                true
+            }
+            R.id.money -> {
+                uzBroadCastView.setFilter(FilterRender.Money)
+                true
+            }
+            R.id.negative -> {
+                uzBroadCastView.setFilter(FilterRender.Negative)
+                true
+            }
+            R.id.pixelated -> {
+                uzBroadCastView.setFilter(FilterRender.Pixelated)
+                true
+            }
+            R.id.polygonization -> {
+                uzBroadCastView.setFilter(FilterRender.Polygonization)
+                true
+            }
+            R.id.rainbow -> {
+                uzBroadCastView.setFilter(FilterRender.Rainbow)
+                true
+            }
+            R.id.rgb_saturate -> {
+                val rgbSaturation = FilterRender.RGBSaturation
+                uzBroadCastView.setFilter(rgbSaturation)
                 //Reduce green and blue colors 20%. Red will predominate.
-                rgbSaturation.setRGBSaturation(1f, 0.8f, 0.8f);
-                return true;
-            case R.id.ripple:
-                broadCastView.setFilter(FilterRender.Ripple);
-                return true;
-            case R.id.rotation:
-                FilterRender rotationRender = FilterRender.Rotation;
-                broadCastView.setFilter(rotationRender);
-                rotationRender.setRotation(90);
-                return true;
-            case R.id.saturation:
-                broadCastView.setFilter(FilterRender.Saturation);
-                return true;
-            case R.id.sepia:
-                broadCastView.setFilter(FilterRender.Sepia);
-                return true;
-            case R.id.sharpness:
-                broadCastView.setFilter(FilterRender.Sharpness);
-                return true;
-            case R.id.snow:
-                broadCastView.setFilter(FilterRender.Snow);
-                return true;
-            case R.id.swirl:
-                broadCastView.setFilter(FilterRender.Swirl);
-                return true;
-            case R.id.temperature:
-                broadCastView.setFilter(FilterRender.Temperature);
-                return true;
-            case R.id.zebra:
-                broadCastView.setFilter(FilterRender.Zebra);
-                return true;
-            case R.id.clear_watermark:
-                broadCastView.clearWatermark();
-                return true;
-            case R.id.text:
-                broadCastView.setTextWatermark("Uiza", 22, Color.RED, Translate.CENTER);
-                return true;
-            case R.id.image:
-                broadCastView.setImageWatermark(R.drawable.logo, new PointF(20f, 15f), Translate.TOP_LEFT);
-                return true;
-            case R.id.gif:
-                broadCastView.setGifWatermark(R.raw.banana, new PointF(20f, 15f), Translate.CENTER);
-                return true;
-            case R.id.surface_filter:
-                broadCastView.setVideoWatermarkByResource(R.raw.big_bunny_240p, Translate.CENTER);
-                return true;
-            default:
-                return false;
+                rgbSaturation.setRGBSaturation(r = 1f, g = 0.8f, b = 0.8f)
+                true
+            }
+            R.id.ripple -> {
+                uzBroadCastView.setFilter(FilterRender.Ripple)
+                true
+            }
+            R.id.rotation -> {
+                val rotationRender = FilterRender.Rotation
+                uzBroadCastView.setFilter(rotationRender)
+                rotationRender.setRotation(90)
+                true
+            }
+            R.id.saturation -> {
+                uzBroadCastView.setFilter(FilterRender.Saturation)
+                true
+            }
+            R.id.sepia -> {
+                uzBroadCastView.setFilter(FilterRender.Sepia)
+                true
+            }
+            R.id.sharpness -> {
+                uzBroadCastView.setFilter(FilterRender.Sharpness)
+                true
+            }
+            R.id.snow -> {
+                uzBroadCastView.setFilter(FilterRender.Snow)
+                true
+            }
+            R.id.swirl -> {
+                uzBroadCastView.setFilter(FilterRender.Swirl)
+                true
+            }
+            R.id.temperature -> {
+                uzBroadCastView.setFilter(FilterRender.Temperature)
+                true
+            }
+            R.id.zebra -> {
+                uzBroadCastView.setFilter(FilterRender.Zebra)
+                true
+            }
+            R.id.clear_watermark -> {
+                uzBroadCastView.clearWatermark()
+                true
+            }
+            R.id.text -> {
+                uzBroadCastView.setTextWatermark(
+                    text = getString(R.string.app_name),
+                    textSize = 22f,
+                    color = Color.RED,
+                    position = Translate.CENTER
+                )
+                true
+            }
+            R.id.image -> {
+                uzBroadCastView.setImageWatermark(
+                    imageRes = R.drawable.logo,
+                    scale = PointF(20f, 15f),
+                    position = Translate.TOP_LEFT
+                )
+                true
+            }
+            R.id.gif -> {
+                uzBroadCastView.setGifWatermark(
+                    gifRaw = R.raw.banana,
+                    scale = PointF(20f, 15f),
+                    position = Translate.CENTER
+                )
+                true
+            }
+            R.id.surface_filter -> {
+                uzBroadCastView.setVideoWatermarkByResource(
+                    videoRes = R.raw.big_bunny_240p,
+                    position = Translate.CENTER
+                )
+                true
+            }
+            else -> false
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 1001) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                recordAction();
-            return;
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                recordAction()
+            }
+            return
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private void recordAction() {
+    private fun recordAction() {
         try {
-            if (!folder.exists()) {
-                try {
-                    boolean result = folder.mkdir();
-                    Log.d(logTag, "result" + result);
-                } catch (SecurityException ex) {
-                    Toast.makeText(this, ex.getLocalizedMessage(),
-                            Toast.LENGTH_SHORT).show();
+            folder?.let { fd ->
+                if (!fd.exists()) {
+                    try {
+                        val result = fd.mkdir()
+                        Log.d(logTag, "result$result")
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
-            }
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
-            currentDateAndTime = sdf.format(new Date());
-            if (!broadCastView.isBroadCasting()) {
-                if (broadCastView.prepareBroadCast()) {
-                    broadCastView.startRecord(
-                            folder.getAbsolutePath() + "/" + currentDateAndTime + ".mp4");
+                val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+                currentDateAndTime = sdf.format(Date())
+                if (!uzBroadCastView.isBroadCasting) {
+                    if (uzBroadCastView.prepareBroadCast()) {
+                        uzBroadCastView.startRecord(savePath = fd.absolutePath + "/" + currentDateAndTime + ".mp4")
+                    } else {
+                        showToast("Error preparing stream, this device cannot do it")
+                    }
                 } else {
-                    Toast.makeText(this, "Error preparing stream, This device cant do it",
-                            Toast.LENGTH_SHORT).show();
+                    uzBroadCastView.startRecord(savePath = fd.absolutePath + "/" + currentDateAndTime + ".mp4")
                 }
-            } else {
-                broadCastView.startRecord(folder.getAbsolutePath() + "/" + currentDateAndTime + ".mp4");
             }
-        } catch (IOException e) {
-            broadCastView.stopRecord();
-            recordButton.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_record_white_24, null));
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (e: IOException) {
+            uzBroadCastView.stopRecord()
+            btnRecord.setImageDrawable(
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.ic_record_white_24,
+                    null
+                )
+            )
+            e.message?.let {
+                showToast(it)
+            }
         }
     }
 
-    @Override
-    public void onClick(View view) {
-        int id = view.getId();
-        if (id == R.id.btnStartStop) {
-            if (!broadCastView.isBroadCasting()) {
-                if (broadCastView.isRecording()
-                        || broadCastView.prepareBroadCast()) {
-                    broadCastView.startBroadCast(broadCastUrl);
-                    startButton.setChecked(true);
-                } else {
-                    Toast.makeText(this, "Error preparing stream, This device cant do it",
-                            Toast.LENGTH_SHORT).show();
-                }
+    override fun onClick(view: View) {
+        if (view == btnStartStop) {
+            if (uzBroadCastView.isBroadCasting) {
+                uzBroadCastView.stopBroadCast()
             } else {
-                broadCastView.stopBroadCast();
+                if (uzBroadCastView.isRecording || uzBroadCastView.prepareBroadCast()) {
+                    uzBroadCastView.startBroadCast(broadCastUrl)
+                    btnStartStop.isChecked = true
+                } else {
+                    showToast("Error preparing stream, This device cannot do it")
+                }
             }
-        } else if (id == R.id.btnSwitchCamera) {
+        } else if (view == btnSwitchCamera) {
             try {
-                broadCastView.switchCamera();
-            } catch (UZCameraOpenException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                uzBroadCastView.switchCamera()
+            } catch (e: UZCameraOpenException) {
+                e.message?.let {
+                    showToast(it)
+                }
             }
-        } else if (id == R.id.btnRecord) {
-            if (!broadCastView.isRecording()) {
-                ActivityCompat.requestPermissions(UZBroadCastActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
+        } else if (view == btnRecord) {
+            if (uzBroadCastView.isRecording) {
+                uzBroadCastView.stopRecord()
             } else {
-                broadCastView.stopRecord();
+                ActivityCompat.requestPermissions(
+                    this@UZBroadCastActivity,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    REQUEST_CODE
+                )
             }
-        } else if (id == R.id.btnAudio) {
-            if (broadCastView.isAudioMuted()) {
-                broadCastView.enableAudio();
+        } else if (view == btnAudio) {
+            if (uzBroadCastView.isAudioMuted) {
+                uzBroadCastView.enableAudio()
             } else {
-                broadCastView.disableAudio();
+                uzBroadCastView.disableAudio()
             }
-            audioButton.setChecked(broadCastView.isAudioMuted());
-        } else if (id == R.id.btnBack) {
-            onBackPressed();
-        } else if (id == R.id.btnMenu) {
-            if (popupMenu == null) setPopupMenu();
-            popupMenu.show();
+            btnAudio.isChecked = uzBroadCastView.isAudioMuted
+        } else if (view == btnBack) {
+            onBackPressed()
+        } else if (view == btnMenu) {
+            if (popupMenu == null) {
+                setPopupMenu()
+            }
+            popupMenu?.show()
         }
     }
 
-    private void setPopupMenu() {
-        popupMenu = new PopupMenu(UZBroadCastActivity.this, menuButton);
-        popupMenu.getMenuInflater().inflate(R.menu.menu_gl, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(this::onMenuItemSelected);
+    private fun setPopupMenu() {
+        popupMenu = PopupMenu(this, btnMenu)
+        popupMenu?.menuInflater?.inflate(R.menu.menu_gl, popupMenu?.menu)
+        popupMenu?.setOnMenuItemClickListener { item: MenuItem ->
+            this.onMenuItemSelected(item)
+        }
     }
 
-    @Override
-    public void onInit(boolean success) {
-        startButton.setEnabled(success);
-        audioButton.setVisibility(View.GONE);
+    override fun onInit(success: Boolean) {
+        btnStartStop.isEnabled = success
+        btnAudio.visibility = View.GONE
         if (success) {
-            broadCastView.setUZCameraChangeListener(this);
-            broadCastView.setUZRecordListener(this);
+            uzBroadCastView.setUZCameraChangeListener(this)
+            uzBroadCastView.setUZRecordListener(this)
         }
     }
 
-    @Override
-    public void onConnectionSuccess() {
-        startButton.setChecked(true);
-        audioButton.setVisibility(View.VISIBLE);
-        audioButton.setChecked(false);
-        Toast.makeText(UZBroadCastActivity.this, "Connection success", Toast.LENGTH_SHORT).show();
+    override fun onConnectionSuccess() {
+        btnStartStop.isChecked = true
+        btnAudio.visibility = View.VISIBLE
+        btnAudio.isChecked = false
+        showToast("Connection success")
     }
 
-    @Override
-    public void onRetryConnection(long delay) {
-        Toast.makeText(UZBroadCastActivity.this, "Retry " + delay / 1000 + " s", Toast.LENGTH_SHORT)
-                .show();
+    override fun onRetryConnection(delay: Long) {
+        showToast("Retry " + delay / 1000 + " s")
     }
 
-    @Override
-    public void onConnectionFailed(@Nullable final String reason) {
-        startButton.setChecked(false);
-        Toast.makeText(UZBroadCastActivity.this, "Connection failed. " + reason, Toast.LENGTH_SHORT)
-                .show();
+    override fun onConnectionFailed(reason: String?) {
+        btnStartStop.isChecked = false
+        showToast("Connection failed. $reason")
     }
 
-    @Override
-    public void onDisconnect() {
-        startButton.setChecked(false);
-        audioButton.setVisibility(View.GONE);
-        audioButton.setChecked(false);
-        Toast.makeText(UZBroadCastActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
+    override fun onDisconnect() {
+        btnStartStop.isChecked = false
+        btnAudio.visibility = View.GONE
+        btnAudio.isChecked = false
+        showToast("Disconnected")
     }
 
-    @Override
-    public void onAuthError() {
-        Toast.makeText(UZBroadCastActivity.this, "Auth error", Toast.LENGTH_SHORT).show();
-
+    override fun onAuthError() {
+        showToast("Auth error")
     }
 
-    @Override
-    public void onAuthSuccess() {
-        Toast.makeText(UZBroadCastActivity.this, "Auth success", Toast.LENGTH_SHORT).show();
+    override fun onAuthSuccess() {
+        showToast("Auth success")
     }
 
-    @Override
-    public void surfaceCreated() {
-        Log.e(logTag, "surfaceCreated");
+    override fun surfaceCreated() {
+        Log.d(logTag, "surfaceCreated")
     }
 
-    @Override
-    public void surfaceChanged(int format, int width, int height) {
-        Log.e(logTag, "surfaceChanged: {" + format + ", " + width + ", " + height + "}");
+    override fun surfaceChanged(format: Int, width: Int, height: Int) {
+        Log.d(logTag, "surfaceChanged: {$format, $width, $height}")
     }
 
-    @Override
-    public void surfaceDestroyed() {
-        Log.e(logTag, "surfaceDestroyed");
+    override fun surfaceDestroyed() {
+        Log.d(logTag, "surfaceDestroyed")
     }
 
-    @Override
-    public void onBackgroundTooLong() {
-        Toast.makeText(this, "You go to background for a long time !", Toast.LENGTH_LONG).show();
+    override fun onBackgroundTooLong() {
+        Toast.makeText(this, "You go to background for a long time !", Toast.LENGTH_LONG).show()
     }
 
-    @Override
-    public void onCameraChange(boolean isFrontCamera) {
-        Log.e(logTag, "onCameraChange: " + isFrontCamera);
+    override fun onCameraChange(isFrontCamera: Boolean) {
+        Log.d(logTag, "onCameraChange: $isFrontCamera")
     }
 
-    @Override
-    public void onStatusChange(RecordStatus status) {
-        runOnUiThread(() -> {
-            recordButton.setChecked(status == RecordStatus.RECORDING);
-            if (status == RecordStatus.RECORDING) {
-                Toast.makeText(this, "Recording... ", Toast.LENGTH_SHORT).show();
-            } else if (status == RecordStatus.STOPPED) {
-                currentDateAndTime = "";
-                Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(UZBroadCastActivity.this, "Record " + status.toString(), Toast.LENGTH_SHORT).show();
+    override fun onStatusChange(status: RecordStatus?) {
+        runOnUiThread {
+            btnRecord.isChecked = status === RecordStatus.RECORDING
+            when {
+                status === RecordStatus.RECORDING -> {
+                    showToast("Recording...")
+                }
+                status === RecordStatus.STOPPED -> {
+                    currentDateAndTime = ""
+                    showToast("Stopped")
+                }
+                else -> {
+                    showToast("Record $status")
+                }
             }
-        });
+        }
+    }
+
+    private fun showToast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 }
