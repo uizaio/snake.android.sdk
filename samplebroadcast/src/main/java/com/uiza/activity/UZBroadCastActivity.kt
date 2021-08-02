@@ -40,8 +40,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class UZBroadCastActivity : AppCompatActivity(),
-    UZRecordListener, UZCameraChangeListener {
+class UZBroadCastActivity : AppCompatActivity() {
 
     companion object {
         private val logTag = UZBroadCastActivity::class.java.simpleName
@@ -87,8 +86,31 @@ class UZBroadCastActivity : AppCompatActivity(),
                 btnStartStop.isEnabled = success
                 btnAudio.visibility = View.GONE
                 if (success) {
-                    uzBroadCastView.setUZCameraChangeListener(this@UZBroadCastActivity)
-                    uzBroadCastView.setUZRecordListener(this@UZBroadCastActivity)
+                    uzBroadCastView.setUZCameraChangeListener(object : UZCameraChangeListener {
+                        override fun onCameraChange(isFrontCamera: Boolean) {
+                            Log.d(logTag, "onCameraChange: $isFrontCamera")
+                        }
+                    })
+
+                    uzBroadCastView.setUZRecordListener(object : UZRecordListener {
+                        override fun onStatusChange(status: RecordStatus?) {
+                            runOnUiThread {
+                                btnRecord.isChecked = status === RecordStatus.RECORDING
+                                when {
+                                    status === RecordStatus.RECORDING -> {
+                                        showToast("Recording...")
+                                    }
+                                    status === RecordStatus.STOPPED -> {
+                                        currentDateAndTime = ""
+                                        showToast("Stopped")
+                                    }
+                                    else -> {
+                                        showToast("Record $status")
+                                    }
+                                }
+                            }
+                        }
+                    })
                 }
             }
 
@@ -521,28 +543,6 @@ class UZBroadCastActivity : AppCompatActivity(),
         popupMenu?.menuInflater?.inflate(R.menu.menu_gl, popupMenu?.menu)
         popupMenu?.setOnMenuItemClickListener { item: MenuItem ->
             this.onMenuItemSelected(item)
-        }
-    }
-
-    override fun onCameraChange(isFrontCamera: Boolean) {
-        Log.d(logTag, "onCameraChange: $isFrontCamera")
-    }
-
-    override fun onStatusChange(status: RecordStatus?) {
-        runOnUiThread {
-            btnRecord.isChecked = status === RecordStatus.RECORDING
-            when {
-                status === RecordStatus.RECORDING -> {
-                    showToast("Recording...")
-                }
-                status === RecordStatus.STOPPED -> {
-                    currentDateAndTime = ""
-                    showToast("Stopped")
-                }
-                else -> {
-                    showToast("Record $status")
-                }
-            }
         }
     }
 
