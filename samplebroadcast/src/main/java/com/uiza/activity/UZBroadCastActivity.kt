@@ -40,7 +40,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener, View.OnClickListener,
+class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
     UZRecordListener, UZCameraChangeListener {
 
     companion object {
@@ -65,14 +65,57 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener, View.OnCli
     }
 
     private fun setupViews() {
-        btnBack.setOnClickListener(this)
         uzBroadCastView.setUZBroadcastListener(this)
-        btnStartStop.setOnClickListener(this)
+        btnBack.setOnClickListener {
+            onBackPressed()
+        }
+        btnStartStop.setOnClickListener {
+            if (uzBroadCastView.isBroadCasting) {
+                uzBroadCastView.stopBroadCast()
+            } else {
+                if (uzBroadCastView.isRecording || uzBroadCastView.prepareBroadCast()) {
+                    uzBroadCastView.startBroadCast(broadCastUrl)
+                    btnStartStop.isChecked = true
+                } else {
+                    showToast("Error preparing stream, This device cannot do it")
+                }
+            }
+        }
         btnStartStop.isEnabled = false
-        btnRecord.setOnClickListener(this)
-        btnAudio.setOnClickListener(this)
-        btnMenu.setOnClickListener(this)
-        btnSwitchCamera.setOnClickListener(this)
+        btnRecord.setOnClickListener {
+            if (uzBroadCastView.isRecording) {
+                uzBroadCastView.stopRecord()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this@UZBroadCastActivity,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    REQUEST_CODE
+                )
+            }
+        }
+        btnAudio.setOnClickListener {
+            if (uzBroadCastView.isAudioMuted) {
+                uzBroadCastView.enableAudio()
+            } else {
+                uzBroadCastView.disableAudio()
+            }
+            btnAudio.isChecked = uzBroadCastView.isAudioMuted
+        }
+        btnMenu.setOnClickListener {
+            if (popupMenu == null) {
+                setPopupMenu()
+            }
+            popupMenu?.show()
+        }
+        btnSwitchCamera.setOnClickListener {
+            try {
+                uzBroadCastView.switchCamera()
+            } catch (e: UZCameraOpenException) {
+                e.message?.let {
+                    showToast(it)
+                }
+            }
+        }
 
         val movieFolder = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
         movieFolder?.let { file ->
@@ -403,14 +446,14 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener, View.OnCli
     ) {
         if (requestCode == REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                recordAction()
+                actionRecord()
             }
             return
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun recordAction() {
+    private fun actionRecord() {
         try {
             folder?.let { fd ->
                 if (!fd.exists()) {
@@ -445,53 +488,6 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener, View.OnCli
             e.message?.let {
                 showToast(it)
             }
-        }
-    }
-
-    override fun onClick(view: View) {
-        if (view == btnStartStop) {
-            if (uzBroadCastView.isBroadCasting) {
-                uzBroadCastView.stopBroadCast()
-            } else {
-                if (uzBroadCastView.isRecording || uzBroadCastView.prepareBroadCast()) {
-                    uzBroadCastView.startBroadCast(broadCastUrl)
-                    btnStartStop.isChecked = true
-                } else {
-                    showToast("Error preparing stream, This device cannot do it")
-                }
-            }
-        } else if (view == btnSwitchCamera) {
-            try {
-                uzBroadCastView.switchCamera()
-            } catch (e: UZCameraOpenException) {
-                e.message?.let {
-                    showToast(it)
-                }
-            }
-        } else if (view == btnRecord) {
-            if (uzBroadCastView.isRecording) {
-                uzBroadCastView.stopRecord()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@UZBroadCastActivity,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    REQUEST_CODE
-                )
-            }
-        } else if (view == btnAudio) {
-            if (uzBroadCastView.isAudioMuted) {
-                uzBroadCastView.enableAudio()
-            } else {
-                uzBroadCastView.disableAudio()
-            }
-            btnAudio.isChecked = uzBroadCastView.isAudioMuted
-        } else if (view == btnBack) {
-            onBackPressed()
-        } else if (view == btnMenu) {
-            if (popupMenu == null) {
-                setPopupMenu()
-            }
-            popupMenu?.show()
         }
     }
 
