@@ -49,7 +49,6 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
 
     private static final String logTag = UZBroadCastActivity.class.getSimpleName();
     private static final String RECORD_FOLDER = "uzbroadcast";
-    int beforeRotation;
     PopupMenu popupMenu;
     SharedPreferences preferences;
     private UZMediaButton startButton, recordButton, audioButton, menuButton;
@@ -65,19 +64,19 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         setContentView(R.layout.activity_broad_cast);
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        findViewById(R.id.btn_back).setOnClickListener(this);
-        broadCastView = findViewById(R.id.uiza_live_view);
+        findViewById(R.id.btnBack).setOnClickListener(this);
+        broadCastView = findViewById(R.id.uzBroadCastView);
         broadCastView.setUZBroadcastListener(this);
-        startButton = findViewById(R.id.b_start_stop);
+        startButton = findViewById(R.id.btnStartStop);
         startButton.setOnClickListener(this);
         startButton.setEnabled(false);
-        recordButton = findViewById(R.id.b_record);
-        audioButton = findViewById(R.id.btn_audio);
-        menuButton = findViewById(R.id.btn_menu);
+        recordButton = findViewById(R.id.btnRecord);
+        audioButton = findViewById(R.id.btnAudio);
+        menuButton = findViewById(R.id.btnMenu);
         recordButton.setOnClickListener(this);
         audioButton.setOnClickListener(this);
         menuButton.setOnClickListener(this);
-        AppCompatImageButton switchCamera = findViewById(R.id.switch_camera);
+        AppCompatImageButton switchCamera = findViewById(R.id.btnSwitchCamera);
         switchCamera.setOnClickListener(this);
         File movieFolder = getExternalFilesDir(Environment.DIRECTORY_MOVIES);
         if (movieFolder != null)
@@ -164,7 +163,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
                 return true;
             case R.id.android_view:
                 FilterRender androidRender = FilterRender.AndroidView;
-                androidRender.setView(findViewById(R.id.switch_camera));
+                androidRender.setView(findViewById(R.id.btnSwitchCamera));
                 broadCastView.setFilter(androidRender);
                 return true;
             case R.id.basic_deformation:
@@ -312,7 +311,8 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         try {
             if (!folder.exists()) {
                 try {
-                    folder.mkdir();
+                    boolean result = folder.mkdir();
+                    Log.d(logTag, "result" + result);
                 } catch (SecurityException ex) {
                     Toast.makeText(this, ex.getLocalizedMessage(),
                             Toast.LENGTH_SHORT).show();
@@ -341,7 +341,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
     @Override
     public void onClick(View view) {
         int id = view.getId();
-        if (id == R.id.b_start_stop) {
+        if (id == R.id.btnStartStop) {
             if (!broadCastView.isBroadCasting()) {
                 if (broadCastView.isRecording()
                         || broadCastView.prepareBroadCast()) {
@@ -354,28 +354,28 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
             } else {
                 broadCastView.stopBroadCast();
             }
-        } else if (id == R.id.switch_camera) {
+        } else if (id == R.id.btnSwitchCamera) {
             try {
                 broadCastView.switchCamera();
             } catch (UZCameraOpenException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-        } else if (id == R.id.b_record) {
+        } else if (id == R.id.btnRecord) {
             if (!broadCastView.isRecording()) {
                 ActivityCompat.requestPermissions(UZBroadCastActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
             } else {
                 broadCastView.stopRecord();
             }
-        } else if (id == R.id.btn_audio) {
+        } else if (id == R.id.btnAudio) {
             if (broadCastView.isAudioMuted()) {
                 broadCastView.enableAudio();
             } else {
                 broadCastView.disableAudio();
             }
             audioButton.setChecked(broadCastView.isAudioMuted());
-        } else if (id == R.id.btn_back) {
+        } else if (id == R.id.btnBack) {
             onBackPressed();
-        } else if (id == R.id.btn_menu) {
+        } else if (id == R.id.btnMenu) {
             if (popupMenu == null) setPopupMenu();
             popupMenu.show();
         }
