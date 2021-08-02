@@ -7,6 +7,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
+
 //31/07/2021 loitp try to port kotlin but failed
 public class VideoSize implements Parcelable {
     public static final Creator<VideoSize> CREATOR = new Creator<VideoSize>() {
@@ -155,6 +157,7 @@ public class VideoSize implements Parcelable {
      *
      * @return string representation of the size
      */
+    @NonNull
     @Override
     public String toString() {
         return mWidth + "x" + mHeight;
