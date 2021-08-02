@@ -66,9 +66,6 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
 
     private fun setupViews() {
         uzBroadCastView.setUZBroadcastListener(this)
-        btnBack.setOnClickListener {
-            onBackPressed()
-        }
         btnStartStop.setOnClickListener {
             if (uzBroadCastView.isBroadCasting) {
                 uzBroadCastView.stopBroadCast()
