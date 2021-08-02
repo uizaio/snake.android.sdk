@@ -62,58 +62,30 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
         setContentView(R.layout.activity_broad_cast)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         setupViews()
+        setupConfig()
     }
 
     private fun setupViews() {
         uzBroadCastView.setUZBroadcastListener(this)
         btnStartStop.setOnClickListener {
-            if (uzBroadCastView.isBroadCasting) {
-                uzBroadCastView.stopBroadCast()
-            } else {
-                if (uzBroadCastView.isRecording || uzBroadCastView.prepareBroadCast()) {
-                    uzBroadCastView.startBroadCast(broadCastUrl)
-                    btnStartStop.isChecked = true
-                } else {
-                    showToast("Error preparing stream, This device cannot do it")
-                }
-            }
+            handleBtnStartStop()
         }
         btnStartStop.isEnabled = false
         btnRecord.setOnClickListener {
-            if (uzBroadCastView.isRecording) {
-                uzBroadCastView.stopRecord()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this@UZBroadCastActivity,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    REQUEST_CODE
-                )
-            }
+            handleBtnRecord()
         }
         btnAudio.setOnClickListener {
-            if (uzBroadCastView.isAudioMuted) {
-                uzBroadCastView.enableAudio()
-            } else {
-                uzBroadCastView.disableAudio()
-            }
-            btnAudio.isChecked = uzBroadCastView.isAudioMuted
+            handleBtnAudio()
         }
         btnMenu.setOnClickListener {
-            if (popupMenu == null) {
-                setPopupMenu()
-            }
-            popupMenu?.show()
+            handleBtnMenu()
         }
         btnSwitchCamera.setOnClickListener {
-            try {
-                uzBroadCastView.switchCamera()
-            } catch (e: UZCameraOpenException) {
-                e.message?.let {
-                    showToast(it)
-                }
-            }
+            handleBtnSwitchCamera()
         }
+    }
 
+    private fun setupConfig() {
         val movieFolder = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
         movieFolder?.let { file ->
             folder = File(file.absolutePath + RECORD_FOLDER)
@@ -576,5 +548,56 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
 
     private fun showToast(msg: String) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleBtnStartStop() {
+        if (uzBroadCastView.isBroadCasting) {
+            uzBroadCastView.stopBroadCast()
+        } else {
+            if (uzBroadCastView.isRecording || uzBroadCastView.prepareBroadCast()) {
+                uzBroadCastView.startBroadCast(broadCastUrl)
+                btnStartStop.isChecked = true
+            } else {
+                showToast("Error preparing stream, This device cannot do it")
+            }
+        }
+    }
+
+    private fun handleBtnRecord() {
+        if (uzBroadCastView.isRecording) {
+            uzBroadCastView.stopRecord()
+        } else {
+            ActivityCompat.requestPermissions(
+                this@UZBroadCastActivity,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                REQUEST_CODE
+            )
+        }
+    }
+
+    private fun handleBtnAudio() {
+        if (uzBroadCastView.isAudioMuted) {
+            uzBroadCastView.enableAudio()
+        } else {
+            uzBroadCastView.disableAudio()
+        }
+        btnAudio.isChecked = uzBroadCastView.isAudioMuted
+    }
+
+    private fun handleBtnMenu() {
+        if (popupMenu == null) {
+            setPopupMenu()
+        }
+        popupMenu?.show()
+    }
+
+    private fun handleBtnSwitchCamera() {
+        try {
+            uzBroadCastView.switchCamera()
+        } catch (e: UZCameraOpenException) {
+            e.message?.let {
+                showToast(it)
+            }
+        }
     }
 }
