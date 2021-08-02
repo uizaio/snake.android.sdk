@@ -66,4 +66,10 @@
     <string name="live_controls_stop_live_description">Stop Live</string>
     <string name="you_are_already_broadcasting">You are already broadcasting.</string>
     <string name="stream_stopped">Stream stopped</string>
+    <string name="stream_started">Stream started</string>
+    <string name="retry_connecting">Retry connecting…</string>
+    <string name="connection_failed">Connection failed.</string>
+    <string name="stop">Stop</string>
+    <string name="stream_auth_error">Stream auth error</string>
+    <string name="stream_auth_success">Stream auth success</string>
 </resources>

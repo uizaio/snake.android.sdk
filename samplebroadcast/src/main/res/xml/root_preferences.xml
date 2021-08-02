@@ -1,19 +1,3 @@
-<!--
-  ~ Copyright 2018 The app Open Source Project
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     app:iconSpaceReserved="false">
     <PreferenceCategory
@@ -29,6 +13,7 @@
             app:key="camera_profile_key"
             app:title="@string/profile_title"
             app:useSimpleSummaryProvider="true" />
+
         <ListPreference
             app:defaultValue="4000000"
             app:entries="@array/video_max_bitrate"
@@ -37,6 +22,7 @@
             app:key="video_bitrate_key"
             app:title="@string/bitrate_title"
             app:useSimpleSummaryProvider="true" />
+
         <ListPreference
             app:defaultValue="30"
             app:entries="@array/fps_entries"
@@ -89,6 +75,7 @@
             app:title="@string/stereo_title"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
+
     <PreferenceCategory
         app:iconSpaceReserved="false"
         app:key="pref_general"

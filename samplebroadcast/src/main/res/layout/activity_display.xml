@@ -6,7 +6,7 @@
     android:background="@android:color/black">
 
     <com.uiza.widget.UZMediaButton
-        android:id="@+id/btn_start"
+        android:id="@+id/btnStart"
         style="@style/UizaMediaLiveButton.Start"
         android:layout_centerInParent="true"
         android:layout_marginEnd="5dp"
