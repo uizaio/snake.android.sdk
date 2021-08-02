@@ -40,7 +40,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
+class UZBroadCastActivity : AppCompatActivity(),
     UZRecordListener, UZCameraChangeListener {
 
     companion object {
@@ -66,7 +66,6 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
     }
 
     private fun setupViews() {
-        uzBroadCastView.setUZBroadcastListener(this)
         btnStartStop.setOnClickListener {
             handleBtnStartStop()
         }
@@ -83,6 +82,63 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
         btnSwitchCamera.setOnClickListener {
             handleBtnSwitchCamera()
         }
+        uzBroadCastView.setUZBroadcastListener(object : UZBroadCastListener {
+            override fun onInit(success: Boolean) {
+                btnStartStop.isEnabled = success
+                btnAudio.visibility = View.GONE
+                if (success) {
+                    uzBroadCastView.setUZCameraChangeListener(this@UZBroadCastActivity)
+                    uzBroadCastView.setUZRecordListener(this@UZBroadCastActivity)
+                }
+            }
+
+            override fun onConnectionSuccess() {
+                btnStartStop.isChecked = true
+                btnAudio.visibility = View.VISIBLE
+                btnAudio.isChecked = false
+                showToast("Connection success")
+            }
+
+            override fun onConnectionFailed(reason: String?) {
+                btnStartStop.isChecked = false
+                showToast("Connection failed. $reason")
+            }
+
+            override fun onRetryConnection(delay: Long) {
+                showToast("Retry " + delay / 1000 + " s")
+            }
+
+            override fun onDisconnect() {
+                btnStartStop.isChecked = false
+                btnAudio.visibility = View.GONE
+                btnAudio.isChecked = false
+                showToast("Disconnected")
+            }
+
+            override fun onAuthError() {
+                showToast("Auth error")
+            }
+
+            override fun onAuthSuccess() {
+                showToast("Auth success")
+            }
+
+            override fun surfaceCreated() {
+                Log.d(logTag, "surfaceCreated")
+            }
+
+            override fun surfaceChanged(format: Int, width: Int, height: Int) {
+                Log.d(logTag, "surfaceChanged: {$format, $width, $height}")
+            }
+
+            override fun surfaceDestroyed() {
+                Log.d(logTag, "surfaceDestroyed")
+            }
+
+            override fun onBackgroundTooLong() {
+                showToast("You go to background for a long time!")
+            }
+        })
     }
 
     private fun setupConfig() {
@@ -466,62 +522,6 @@ class UZBroadCastActivity : AppCompatActivity(), UZBroadCastListener,
         popupMenu?.setOnMenuItemClickListener { item: MenuItem ->
             this.onMenuItemSelected(item)
         }
-    }
-
-    override fun onInit(success: Boolean) {
-        btnStartStop.isEnabled = success
-        btnAudio.visibility = View.GONE
-        if (success) {
-            uzBroadCastView.setUZCameraChangeListener(this)
-            uzBroadCastView.setUZRecordListener(this)
-        }
-    }
-
-    override fun onConnectionSuccess() {
-        btnStartStop.isChecked = true
-        btnAudio.visibility = View.VISIBLE
-        btnAudio.isChecked = false
-        showToast("Connection success")
-    }
-
-    override fun onRetryConnection(delay: Long) {
-        showToast("Retry " + delay / 1000 + " s")
-    }
-
-    override fun onConnectionFailed(reason: String?) {
-        btnStartStop.isChecked = false
-        showToast("Connection failed. $reason")
-    }
-
-    override fun onDisconnect() {
-        btnStartStop.isChecked = false
-        btnAudio.visibility = View.GONE
-        btnAudio.isChecked = false
-        showToast("Disconnected")
-    }
-
-    override fun onAuthError() {
-        showToast("Auth error")
-    }
-
-    override fun onAuthSuccess() {
-        showToast("Auth success")
-    }
-
-    override fun surfaceCreated() {
-        Log.d(logTag, "surfaceCreated")
-    }
-
-    override fun surfaceChanged(format: Int, width: Int, height: Int) {
-        Log.d(logTag, "surfaceChanged: {$format, $width, $height}")
-    }
-
-    override fun surfaceDestroyed() {
-        Log.d(logTag, "surfaceDestroyed")
-    }
-
-    override fun onBackgroundTooLong() {
-        Toast.makeText(this, "You go to background for a long time !", Toast.LENGTH_LONG).show()
     }
 
     override fun onCameraChange(isFrontCamera: Boolean) {
